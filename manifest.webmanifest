@@ -1,7 +1,7 @@
 {
   "name": "わが家のカレンダー",
   "short_name": "家族カレンダー",
-  "start_url": "./wagaya_calendar.html",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#f6f6f6",
   "theme_color": "#f6f6f6"

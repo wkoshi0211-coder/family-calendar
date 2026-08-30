@@ -1,8 +1,7 @@
-const CACHE = "wagaya-calendar-v2";
+const CACHE = "wagaya-calendar-v3";
 
 const ASSETS = [
   "./",
-  "./index.html",
   "./manifest.webmanifest",
   "./icon-180.png",
   "./icon-192.png",
@@ -32,8 +31,10 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
+    fetch(event.request)
+      .then((response) => {
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });

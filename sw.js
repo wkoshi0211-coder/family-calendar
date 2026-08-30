@@ -1,8 +1,8 @@
-const CACHE = "wagaya-calendar-v1";
+const CACHE = "wagaya-calendar-v2";
 
 const ASSETS = [
   "./",
-  "./wagaya_calendar.html",
+  "./index.html",
   "./manifest.webmanifest"
 ];
 
@@ -17,7 +17,13 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    self.clients.claim()
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys
+          .filter((key) => key !== CACHE)
+          .map((key) => caches.delete(key))
+      )
+    ).then(() => self.clients.claim())
   );
 });
 

@@ -3,7 +3,9 @@ const CACHE = "wagaya-calendar-v2";
 const ASSETS = [
   "./",
   "./index.html",
-  "./manifest.webmanifest"
+  "./manifest.webmanifest",
+  "./icon-192.png",
+  "./icon-512.png"
 ];
 
 self.addEventListener("install", (event) => {

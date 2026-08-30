@@ -1,9 +1,11 @@
 {
+  "id": "/family-calendar/",
   "name": "わが家のカレンダー",
   "short_name": "わが家カレンダー",
   "start_url": "/family-calendar/",
   "scope": "/family-calendar/",
   "display": "standalone",
+  "display_override": ["standalone"],
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
   "icons": [

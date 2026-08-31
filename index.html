@@ -27,80 +27,30 @@
   box-sizing:border-box;
 }
 
-html,
 body{
-  width:100%;
-  height:100%;
   margin:0;
-  overflow:hidden;
-}
-
-body{
   background:var(--bg);
   color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
 }
 
 .app{
-  width:100%;
-  height:100dvh;
   max-width:900px;
   margin:auto;
-  padding:8px 10px;
-  display:flex;
-  flex-direction:column;
-  overflow:hidden;
+  padding:12px 10px 28px;
 }
 
-.topbar{
+header{
   display:flex;
   align-items:center;
-  justify-content:flex-end;
-  min-height:44px;
-  margin-bottom:4px;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:10px;
 }
 
-.menu-wrap{
-  position:relative;
-}
-
-.menu-btn{
-  width:44px;
-  height:44px;
-  padding:0;
-  border:0;
-  background:transparent;
-  font-size:28px;
-  line-height:1;
-  border-radius:50%;
-}
-
-.menu{
-  display:none;
-  position:absolute;
-  top:46px;
-  right:0;
-  width:220px;
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:12px;
-  box-shadow:0 5px 18px rgba(0,0,0,.18);
-  overflow:hidden;
-  z-index:200;
-}
-
-.menu.show{
-  display:block;
-}
-
-.menu button{
-  width:100%;
-  border:0;
-  border-radius:0;
-  text-align:left;
-  background:#fff;
-  padding:14px;
-  min-height:48px;
+h1{
+  font-size:22px;
+  margin:0;
 }
 
 button{
@@ -123,10 +73,16 @@ button:active{
   border-color:#333;
 }
 
+.top-row{
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+
 .tabs{
   display:flex;
   gap:6px;
-  margin:0 0 8px;
+  margin:8px 0;
 }
 
 .tabs button{
@@ -143,41 +99,19 @@ button:active{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:8px;
-  margin:0 0 8px;
-}
-
-.nav button{
-  width:46px;
-  padding:0;
-  font-size:28px;
+  margin:8px 0 10px;
 }
 
 .nav .title{
-  flex:1;
-  text-align:center;
   font-weight:700;
   font-size:20px;
 }
 
-#monthView,
-#weekView{
-  min-height:0;
-}
-
-#monthView{
-  flex:1;
-}
-
 .calendar{
-  height:100%;
   background:#fff;
   border:1px solid var(--line);
   border-radius:12px;
   overflow:hidden;
-  display:flex;
-  flex-direction:column;
-  touch-action:pan-y;
 }
 
 .weekdays,
@@ -195,20 +129,31 @@ button:active{
 }
 
 .month-grid{
-  flex:1;
+  grid-auto-rows:minmax(92px,1fr);
+}
+
+#monthView .calendar{
+  height:calc(100dvh - 132px);
   min-height:0;
+  display:flex;
+  flex-direction:column;
+}
+
+#monthView .month-grid{
+  flex:1;
   grid-template-rows:repeat(6,minmax(0,1fr));
+  grid-auto-rows:auto;
 }
 
 .day{
   border-right:1px solid #e6e6e6;
   border-bottom:1px solid #e6e6e6;
-  padding:3px;
+  padding:4px;
   min-width:0;
-  min-height:0;
   overflow:hidden;
   cursor:pointer;
   position:relative;
+  padding-bottom:20px;
 }
 
 .day:nth-child(7n){
@@ -227,7 +172,7 @@ button:active{
 .date-num{
   font-size:13px;
   font-weight:700;
-  margin-bottom:2px;
+  margin-bottom:3px;
 }
 
 .event{
@@ -235,6 +180,10 @@ button:active{
   line-height:1.35;
   margin:3px 0;
   overflow:hidden;
+}
+
+.month-grid .event{
+  white-space:normal;
 }
 
 .event-meta{
@@ -252,18 +201,27 @@ button:active{
 
 .month-only-event{
   margin:2px 0;
-}
-
-.month-only-event .event-name{
-  font-size:10px;
+  position:relative;
 }
 
 .more-events{
   position:absolute;
   right:4px;
   bottom:3px;
-  font-size:10px;
+  font-size:11px;
+  font-weight:400;
   color:#666;
+  line-height:1.35;
+  z-index:2;
+}
+
+.day-event-item{
+  display:block;
+  width:100%;
+  text-align:left;
+  margin:7px 0;
+  padding:12px;
+  font-size:16px;
 }
 
 .tag{
@@ -290,8 +248,6 @@ button:active{
   display:flex;
   flex-direction:column;
   gap:7px;
-  overflow:auto;
-  padding-bottom:8px;
 }
 
 .week-day{
@@ -325,7 +281,6 @@ button:active{
   color:#fff;
   border:0;
   box-shadow:0 3px 12px #999;
-  z-index:50;
 }
 
 .overlay{
@@ -346,7 +301,7 @@ button:active{
 .sheet{
   background:#fff;
   width:min(700px,100%);
-  max-height:92dvh;
+  max-height:92vh;
   overflow:auto;
   border-radius:18px 18px 0 0;
   padding:18px 14px 22px;
@@ -372,8 +327,7 @@ button:active{
 }
 
 .member-btn.selected,
-.event-btn.selected,
-.repeat-btn.selected{
+.event-btn.selected{
   outline:3px solid #333;
 }
 
@@ -395,15 +349,6 @@ button:active{
 
 .member-p{
   color:var(--green);
-}
-
-.repeat-grid{
-  display:flex;
-  gap:8px;
-}
-
-.repeat-btn{
-  flex:1;
 }
 
 input[type="time"],
@@ -472,63 +417,43 @@ input[type="date"]{
   display:block;
 }
 
-.day-event-item{
-  display:block;
-  width:100%;
-  text-align:left;
-  margin:7px 0;
-  padding:12px;
-  font-size:16px;
+.repeat-option{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:10px;
+  font-size:15px;
+  font-weight:700;
+}
+
+.repeat-option input{
+  width:20px;
+  height:20px;
 }
 
 @media(max-width:600px){
-
   .app{
-    padding:6px 6px;
+    padding:8px;
   }
 
-  .topbar{
-    min-height:40px;
-    margin-bottom:2px;
+  .month-grid{
+    grid-auto-rows:auto;
   }
 
-  .menu-btn{
-    width:40px;
-    height:40px;
+  .event{
+    font-size:10px;
   }
 
-  .tabs{
-    margin-bottom:6px;
-  }
-
-  .tabs button{
-    min-height:40px;
-    padding:7px 10px;
-  }
-
-  .nav{
-    margin-bottom:6px;
-  }
-
-  .nav button{
-    width:42px;
-    min-height:40px;
-  }
-
-  .nav .title{
-    font-size:18px;
-  }
-
-  .weekdays div{
-    padding:5px 1px;
+  .day{
+    padding:3px;
   }
 
   .date-num{
     font-size:12px;
   }
 
-  .month-only-event .event-name{
-    font-size:9px;
+  .sheet{
+    padding-bottom:28px;
   }
 }
 </style>
@@ -538,16 +463,13 @@ input[type="date"]{
 
 <div class="app">
 
-  <div class="topbar">
-    <div class="menu-wrap">
-      <button class="menu-btn" id="menuBtn" aria-label="メニュー">︙</button>
+  <header>
+    <h1>わが家のカレンダー</h1>
 
-      <div class="menu" id="menu">
-        <button id="shareMenuBtn">共有設定</button>
-        <button id="manageMenuBtn">よく使う予定を管理</button>
-      </div>
+    <div class="top-row">
+      <button id="shareBtn">共有設定</button>
     </div>
-  </div>
+  </header>
 
   <div class="tabs">
     <button class="active" data-view="month">月間</button>
@@ -561,8 +483,7 @@ input[type="date"]{
   </div>
 
   <div id="monthView">
-    <div class="calendar" id="calendarArea">
-
+    <div class="calendar">
       <div class="weekdays">
         <div>日</div>
         <div>月</div>
@@ -574,7 +495,6 @@ input[type="date"]{
       </div>
 
       <div class="month-grid" id="monthGrid"></div>
-
     </div>
   </div>
 
@@ -586,8 +506,6 @@ input[type="date"]{
 
 <button class="fab" id="addBtn">＋</button>
 
-
-<!-- 予定編集 -->
 
 <div class="overlay" id="editorOverlay">
 
@@ -604,6 +522,11 @@ input[type="date"]{
     <div class="label">時刻（任意）</div>
     <input type="time" id="timeInput">
 
+    <label class="repeat-option">
+      <input type="checkbox" id="repeatWeekly">
+      毎週この曜日に登録する
+    </label>
+
     <div class="label">予定を選ぶ</div>
     <div class="event-grid" id="eventGrid"></div>
 
@@ -613,13 +536,6 @@ input[type="date"]{
       <div id="customWrap" style="display:none;margin-top:8px">
         <input type="text" id="customInput" placeholder="予定を入力">
       </div>
-    </div>
-
-    <div class="label">繰り返し</div>
-
-    <div class="repeat-grid">
-      <button class="repeat-btn selected" data-repeat="none">繰り返さない</button>
-      <button class="repeat-btn" data-repeat="weekly">毎週</button>
     </div>
 
     <div class="actions">
@@ -633,8 +549,6 @@ input[type="date"]{
 </div>
 
 
-<!-- 共有設定 -->
-
 <div class="overlay" id="settingsOverlay">
 
   <div class="sheet">
@@ -642,7 +556,7 @@ input[type="date"]{
     <h2>共有設定</h2>
 
     <p class="notice">
-      家族共有には Firebase の設定が必要です。設定後、同じ「家族コード」を家族全員で使用すると同じ予定を共有できます。
+      家族共有には Firebase の設定が必要です。設定後、同じ「家族コード」を家族全員で入力すると同じ予定を共有できます。
     </p>
 
     <button id="toggleSettings">Firebase設定を入力する</button>
@@ -659,7 +573,12 @@ input[type="date"]{
     </div>
 
     <div class="label">家族コード</div>
-    <input type="text" id="roomInput" placeholder="例：wagaya2026">
+
+    <input
+      type="text"
+      id="roomInput"
+      placeholder="例：wagaya2026"
+    >
 
     <div class="actions">
       <button id="closeSettings">閉じる</button>
@@ -673,8 +592,6 @@ input[type="date"]{
 </div>
 
 
-<!-- よく使う予定 -->
-
 <div class="overlay" id="manageOverlay">
 
   <div class="sheet">
@@ -684,15 +601,8 @@ input[type="date"]{
     <div id="manageList"></div>
 
     <div class="row" style="margin-top:12px">
-
-      <input
-        type="text"
-        id="newEventInput"
-        placeholder="新しい予定"
-      >
-
+      <input type="text" id="newEventInput" placeholder="新しい予定">
       <button id="addEventBtn">追加</button>
-
     </div>
 
     <div class="actions">
@@ -704,8 +614,6 @@ input[type="date"]{
 </div>
 
 
-<!-- 日付別予定 -->
-
 <div class="overlay" id="dayOverlay">
 
   <div class="sheet">
@@ -715,13 +623,8 @@ input[type="date"]{
     <div id="dayEventList"></div>
 
     <div class="actions">
-
       <button id="dayCloseBtn">閉じる</button>
-
-      <button class="primary" id="dayAddBtn">
-        ＋ 予定を追加
-      </button>
-
+      <button class="primary" id="dayAddBtn">＋ 予定を追加</button>
     </div>
 
   </div>
@@ -731,7 +634,7 @@ input[type="date"]{
 
 <script type="module">
 
-const initialEvents = [
+const initialEvents=[
   "部活",
   "部活なし",
   "スイミング",
@@ -747,33 +650,30 @@ const initialEvents = [
   "休み"
 ];
 
-const members = [
+const members=[
   {id:"father",label:"[父]",cls:"p"},
   {id:"mother",label:"[母]",cls:"m"},
   {id:"fumina",label:"[ふ]",cls:"f"},
   {id:"sota",label:"[そ]",cls:"s"}
 ];
 
-let customEvents = [];
-let hiddenEvents = [];
+let events=[];
+let customEvents=[];
+let hiddenEvents=[];
+let view="month";
+let cursor=new Date();
+let editingId=null;
+let selectedMembers=[];
+let selectedEvent=null;
 
-let view = "month";
-let cursor = new Date();
+let db=null;
+let firestoreFns=null;
+let roomId=localStorage.getItem("familyCalendarRoom")||"";
+let unsubscribe=null;
 
-let editingId = null;
-let editingRecurringId = null;
-let selectedMembers = [];
-let selectedEvent = null;
-let selectedRepeat = "none";
+const LSKEY="familyCalendarLocal";
 
-let db = null;
-let firestoreFns = null;
-let roomId = localStorage.getItem("familyCalendarRoom") || "";
-let unsubscribe = null;
-
-const LSKEY = "familyCalendarLocal";
-
-const $ = id => document.getElementById(id);
+const $=id=>document.getElementById(id);
 
 
 function pad(n){
@@ -782,61 +682,185 @@ function pad(n){
 
 
 function iso(d){
-
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-
 }
 
 
 function parseISO(s){
-
-  const [y,m,d] = s.split("-").map(Number);
-
+  const [y,m,d]=s.split("-").map(Number);
   return new Date(y,m-1,d);
-
 }
 
 
 function memberHtml(ids){
-
-  return ids.map(id => {
-
-    const m = members.find(x => x.id === id);
+  return ids.map(id=>{
+    const m=members.find(x=>x.id===id);
 
     return m
       ? `<span class="tag ${m.cls}">${m.label}</span>`
       : "";
 
   }).join("");
-
 }
 
 
 function eventText(e){
+  return `${memberHtml(e.members||[])}${e.time||""}${e.event||""}`;
+}
 
-  return `${memberHtml(e.members || [])}${e.time || ""}${e.event || ""}`;
 
+function monthEventText(e){
+  return `
+    <div class="event-meta">
+      ${memberHtml(e.members||[])}
+      ${e.time||""}
+    </div>
+
+    <div class="event-name">
+      ${e.event||""}
+    </div>
+  `;
+}
+
+
+function getEventsForDate(date){
+
+  const baseEvents=data.filter(e=>e.date===date);
+
+  const exceptions=data.filter(
+    e=>e.type==="weeklyException" && e.date===date
+  );
+
+  const exceptionIds=exceptions.map(e=>e.weeklyId);
+
+  const recurringEvents=data
+    .filter(e=>e.type==="weekly")
+    .filter(e=>{
+      const d=parseISO(date);
+
+      return e.weekday===d.getDay()
+        && date>=e.date
+        && !exceptionIds.includes(e.id);
+    })
+    .map(e=>({
+      ...e,
+      occurrenceDate:date,
+      isWeeklyOccurrence:true
+    }));
+
+  return [
+    ...baseEvents.filter(
+      e=>e.type!=="weeklyException"
+        && e.type!=="weekly"
+    ),
+    ...recurringEvents
+  ];
+
+}
+
+
+function openDay(date){
+
+  const d=parseISO(date);
+
+  const names=[
+    "日",
+    "月",
+    "火",
+    "水",
+    "木",
+    "金",
+    "土"
+  ];
+
+  $("dayTitle").textContent=
+    `${d.getMonth()+1}月${d.getDate()}日（${names[d.getDay()]}）`;
+
+  const es=getEventsForDate(date)
+    .sort((a,b)=>
+      (a.time||"99:99")
+        .localeCompare(b.time||"99:99")
+    );
+
+  $("dayEventList").innerHTML=es.length
+
+    ? es.map(e=>`
+
+      <button
+        class="day-event-item"
+        data-edit-id="${e.id}"
+        data-occurrence-date="${e.occurrenceDate||""}"
+      >
+        ${eventText(e)}
+      </button>
+
+    `).join("")
+
+    : `
+      <div class="empty" style="padding:16px 0">
+        予定はありません
+      </div>
+    `;
+
+
+  document
+    .querySelectorAll("[data-edit-id]")
+    .forEach(b=>{
+
+      b.onclick=()=>{
+
+        const id=b.dataset.editId;
+        const occurrenceDate=b.dataset.occurrenceDate;
+
+        const e=data.find(x=>x.id===id);
+
+        if(e){
+
+          closeDay();
+
+          if(occurrenceDate){
+            openWeeklyOccurrenceEditor(occurrenceDate,e.id);
+          }else{
+            openEditor(e.date,e.id);
+          }
+
+        }
+
+      };
+
+    });
+
+
+  $("dayAddBtn").onclick=()=>{
+    closeDay();
+    openEditor(date);
+  };
+
+
+  $("dayOverlay").classList.add("show");
+
+}
+
+
+function closeDay(){
+  $("dayOverlay").classList.remove("show");
 }
 
 
 function localLoad(){
 
   try{
-
     return JSON.parse(
-      localStorage.getItem(LSKEY) || "[]"
+      localStorage.getItem(LSKEY)||"[]"
     );
-
   }catch{
-
     return [];
-
   }
 
 }
 
 
-function localSave(){
+function localSave(data){
 
   localStorage.setItem(
     LSKEY,
@@ -848,7 +872,7 @@ function localSave(){
 }
 
 
-let data = localLoad();
+let data=localLoad();
 
 
 function allEventOptions(){
@@ -856,430 +880,50 @@ function allEventOptions(){
   return [...new Set([
     ...initialEvents,
     ...customEvents
-  ])].filter(x => !hiddenEvents.includes(x));
-
-}
-
-
-/*
-  指定日の予定を取得
-
-  通常予定
-  ＋
-  毎週予定
-
-  ただし、
-  「この日だけ削除」された毎週予定は除外
-*/
-
-function getEventsForDate(date){
-
-  const normalEvents = data.filter(e =>
-    e.type !== "exception" &&
-    e.repeat !== "weekly" &&
-    e.date === date
+  ])]
+  .filter(
+    x=>!hiddenEvents.includes(x)
   );
-
-
-  const exceptions = data.filter(e =>
-    e.type === "exception" &&
-    e.date === date
-  );
-
-
-  const weeklyEvents = data
-    .filter(e =>
-      e.type !== "exception" &&
-      e.repeat === "weekly"
-    )
-    .filter(e => {
-
-      const startDate = parseISO(e.date);
-      const targetDate = parseISO(date);
-
-      if(targetDate < startDate){
-        return false;
-      }
-
-      return targetDate.getDay() === startDate.getDay();
-
-    })
-    .filter(e => {
-
-      return !exceptions.some(ex =>
-        ex.recurringId === e.id
-      );
-
-    })
-    .map(e => ({
-      ...e,
-      occurrenceDate:date,
-      isRecurringOccurrence:true
-    }));
-
-
-  return [
-    ...normalEvents,
-    ...weeklyEvents
-  ].sort((a,b) =>
-    (a.time || "99:99").localeCompare(
-      b.time || "99:99"
-    )
-  );
-
-}
-
-
-function openDay(date){
-
-  const d = parseISO(date);
-
-  const names = [
-    "日","月","火","水","木","金","土"
-  ];
-
-  $("dayTitle").textContent =
-    `${d.getMonth()+1}月${d.getDate()}日（${names[d.getDay()]}）`;
-
-
-  const es = getEventsForDate(date);
-
-
-  $("dayEventList").innerHTML = es.length
-
-    ? es.map(e => {
-
-        const id = e.isRecurringOccurrence
-          ? `recurring:${e.id}:${date}`
-          : e.id;
-
-        return `
-          <button
-            class="day-event-item"
-            data-edit-id="${id}"
-          >
-            ${eventText(e)}
-          </button>
-        `;
-
-      }).join("")
-
-    : `
-      <div
-        class="empty"
-        style="padding:16px 0"
-      >
-        予定はありません
-      </div>
-    `;
-
-
-  document
-    .querySelectorAll("[data-edit-id]")
-    .forEach(b => {
-
-      b.onclick = () => {
-
-        const value = b.dataset.editId;
-
-        if(value.startsWith("recurring:")){
-
-          const [,id,occurrenceDate] =
-            value.split(":");
-
-          closeDay();
-
-          openRecurringOccurrence(
-            occurrenceDate,
-            id
-          );
-
-          return;
-
-        }
-
-
-        const e = data.find(
-          x => x.id === value
-        );
-
-
-        if(e){
-
-          closeDay();
-
-          openEditor(
-            e.date,
-            e.id
-          );
-
-        }
-
-      };
-
-    });
-
-
-  $("dayAddBtn").onclick = () => {
-
-    closeDay();
-
-    openEditor(date);
-
-  };
-
-
-  $("dayOverlay").classList.add("show");
-
-}
-
-
-function closeDay(){
-
-  $("dayOverlay")
-    .classList.remove("show");
-
-}
-
-
-/*
-  毎週予定の「特定の日」を開く
-
-  編集ではなく、
-  この日だけ削除することができる
-*/
-
-function openRecurringOccurrence(
-  date,
-  recurringId
-){
-
-  const e = data.find(
-    x => x.id === recurringId
-  );
-
-  if(!e){
-    return;
-  }
-
-
-  $("dayTitle").textContent =
-    `${parseISO(date).getMonth()+1}月${parseISO(date).getDate()}日の予定`;
-
-
-  $("dayEventList").innerHTML = `
-
-    <div
-      style="
-        padding:8px 0 14px;
-        font-size:17px;
-      "
-    >
-      ${eventText(e)}
-    </div>
-
-    <div class="notice">
-      この予定は毎週繰り返される予定です。
-    </div>
-
-    <button
-      class="primary"
-      id="deleteThisOccurrenceBtn"
-      style="width:100%;margin-top:8px"
-    >
-      この日だけ削除
-    </button>
-
-    <button
-      id="deleteAllRecurringBtn"
-      style="width:100%;margin-top:8px"
-    >
-      すべての繰り返し予定を削除
-    </button>
-
-  `;
-
-
-  $("deleteThisOccurrenceBtn").onclick =
-    async () => {
-
-      if(
-        !confirm(
-          "この日の予定だけ削除しますか？"
-        )
-      ){
-        return;
-      }
-
-
-      const exception = {
-
-        id:crypto.randomUUID(),
-        type:"exception",
-        date,
-        recurringId
-
-      };
-
-
-      if(db){
-
-        await firestoreFns.setDoc(
-
-          firestoreFns.doc(
-            db,
-            "familyCalendars",
-            roomId,
-            "events",
-            exception.id
-          ),
-
-          exception
-
-        );
-
-      }else{
-
-        data.push(exception);
-
-        localSave();
-
-      }
-
-
-      closeDay();
-
-    };
-
-
-  $("deleteAllRecurringBtn").onclick =
-    async () => {
-
-      if(
-        !confirm(
-          "この毎週の予定をすべて削除しますか？"
-        )
-      ){
-        return;
-      }
-
-
-      if(db){
-
-        await firestoreFns.deleteDoc(
-
-          firestoreFns.doc(
-            db,
-            "familyCalendars",
-            roomId,
-            "events",
-            recurringId
-          )
-
-        );
-
-
-        const relatedExceptions =
-          data.filter(x =>
-            x.type === "exception" &&
-            x.recurringId === recurringId
-          );
-
-
-        for(const ex of relatedExceptions){
-
-          await firestoreFns.deleteDoc(
-
-            firestoreFns.doc(
-              db,
-              "familyCalendars",
-              roomId,
-              "events",
-              ex.id
-            )
-
-          );
-
-        }
-
-      }else{
-
-        data = data.filter(x =>
-          x.id !== recurringId &&
-          x.recurringId !== recurringId
-        );
-
-        localSave();
-
-      }
-
-
-      closeDay();
-
-    };
-
-
-  $("dayAddBtn").onclick = () => {
-
-    closeDay();
-
-    openEditor(date);
-
-  };
-
-
-  $("dayOverlay")
-    .classList.add("show");
 
 }
 
 
 function render(){
 
-  $("periodTitle").textContent =
-    view === "month"
+  $("periodTitle").textContent=
+    view==="month"
+
       ? `${cursor.getFullYear()}年 ${cursor.getMonth()+1}月`
+
       : weekTitle();
 
 
-  $("monthView").style.display =
-    view === "month"
+  $("monthView").style.display=
+    view==="month"
       ? "block"
       : "none";
 
 
-  $("weekView").style.display =
-    view === "week"
+  $("weekView").style.display=
+    view==="week"
       ? "block"
       : "none";
-
-
-  $("monthView").style.flex =
-    view === "month"
-      ? "1"
-      : "0";
 
 
   document
     .querySelectorAll(".tabs button")
-    .forEach(b => {
-
+    .forEach(b=>
       b.classList.toggle(
         "active",
-        b.dataset.view === view
-      );
+        b.dataset.view===view
+      )
+    );
 
-    });
 
-
-  if(view === "month"){
-
+  if(view==="month"){
     renderMonth();
-
   }else{
-
     renderWeek();
-
   }
 
 }
@@ -1287,62 +931,51 @@ function render(){
 
 function renderMonth(){
 
-  const y = cursor.getFullYear();
+  const y=cursor.getFullYear();
+  const m=cursor.getMonth();
 
-  const m = cursor.getMonth();
+  const first=new Date(y,m,1);
 
-  const first = new Date(y,m,1);
-
-  const start = new Date(
+  const start=new Date(
     y,
     m,
-    1 - first.getDay()
+    1-first.getDay()
   );
 
+  const grid=$("monthGrid");
 
-  const grid = $("monthGrid");
+  grid.innerHTML="";
 
-  grid.innerHTML = "";
-
-
-  const today = iso(new Date());
+  const today=iso(new Date());
 
 
   for(let i=0;i<42;i++){
 
-    const d = new Date(start);
+    const d=new Date(start);
 
     d.setDate(
       start.getDate()+i
     );
 
+    const key=iso(d);
 
-    const key = iso(d);
-
-
-    const dayEvents =
-      getEventsForDate(key);
-
-
-    const el =
-      document.createElement("div");
-
-
-    el.className =
-      "day" +
-      (
-        d.getMonth() !== m
-          ? " muted"
-          : ""
-      ) +
-      (
-        key === today
-          ? " today"
-          : ""
+    const dayEvents=getEventsForDate(key)
+      .sort((a,b)=>
+        (a.time||"99:99")
+          .localeCompare(b.time||"99:99")
       );
 
 
-    el.innerHTML = `
+    const el=document.createElement("div");
+
+
+    el.className=
+      "day"
+      +(d.getMonth()!==m?" muted":"")
+      +(key===today?" today":"");
+
+
+    el.innerHTML=`
 
       <div class="date-num">
         ${d.getDate()}
@@ -1350,14 +983,14 @@ function renderMonth(){
 
       ${dayEvents
         .slice(0,3)
-        .map(e => `
+        .map(e=>`
 
           <div
             class="event month-only-event"
             title="${e.event}"
           >
             <div class="event-name">
-              ${memberHtml(e.members || [])}${e.event || ""}
+              ${e.event||""}
             </div>
           </div>
 
@@ -1366,24 +999,15 @@ function renderMonth(){
       }
 
       ${
-        dayEvents.length >= 4
-
-          ? `
-            <div class="more-events">
-              他
-            </div>
-          `
-
+        dayEvents.length>=4
+          ? `<div class="more-events">他</div>`
           : ""
-
       }
 
     `;
 
 
-    el.onclick = () =>
-      openDay(key);
-
+    el.onclick=()=>openDay(key);
 
     grid.appendChild(el);
 
@@ -1394,12 +1018,12 @@ function renderMonth(){
 
 function weekStart(d){
 
-  const x = new Date(d);
+  const x=new Date(d);
 
   x.setHours(0,0,0,0);
 
   x.setDate(
-    x.getDate() - x.getDay()
+    x.getDate()-x.getDay()
   );
 
   return x;
@@ -1409,58 +1033,66 @@ function weekStart(d){
 
 function weekTitle(){
 
-  const s = weekStart(cursor);
+  const s=weekStart(cursor);
 
-  const e = new Date(s);
+  const e=new Date(s);
 
   e.setDate(
-    e.getDate()+6
+    s.getDate()+6
   );
 
-
-  return `${s.getMonth()+1}/${s.getDate()}〜${e.getMonth()+1}/${e.getDate()}`;
+  return `
+    ${s.getMonth()+1}/${s.getDate()}
+    〜
+    ${e.getMonth()+1}/${e.getDate()}
+  `;
 
 }
 
 
 function renderWeek(){
 
-  const list = $("weekList");
+  const list=$("weekList");
 
-  const s = weekStart(cursor);
+  const s=weekStart(cursor);
 
-  list.innerHTML = "";
+  list.innerHTML="";
 
 
-  const names = [
-    "日","月","火","水","木","金","土"
+  const names=[
+    "日",
+    "月",
+    "火",
+    "水",
+    "木",
+    "金",
+    "土"
   ];
 
 
   for(let i=0;i<7;i++){
 
-    const d = new Date(s);
+    const d=new Date(s);
 
     d.setDate(
       s.getDate()+i
     );
 
+    const key=iso(d);
 
-    const key = iso(d);
-
-
-    const es =
-      getEventsForDate(key);
-
-
-    const el =
-      document.createElement("div");
+    const es=getEventsForDate(key)
+      .sort((a,b)=>
+        (a.time||"99:99")
+          .localeCompare(b.time||"99:99")
+      );
 
 
-    el.className = "week-day";
+    const el=document.createElement("div");
+
+    el.className="week-day";
 
 
-    el.innerHTML = `
+    el.innerHTML=`
 
       <div class="week-head">
         ${d.getMonth()+1}/${d.getDate()}（${names[i]}）
@@ -1469,25 +1101,19 @@ function renderWeek(){
       ${
         es.length
 
-          ? es.map(e => `
+          ? es.map(e=>`
               <div class="event">
                 ${eventText(e)}
               </div>
             `).join("")
 
-          : `
-              <div class="empty">
-                予定なし
-              </div>
-            `
+          : `<div class="empty">予定なし</div>`
       }
 
     `;
 
 
-    el.onclick = () =>
-      openDay(key);
-
+    el.onclick=()=>openDay(key);
 
     list.appendChild(el);
 
@@ -1496,95 +1122,81 @@ function renderWeek(){
 }
 
 
-function openEditor(
-  date,
-  id=null
-){
+function openEditor(date,id=null){
 
-  editingId = id;
+  editingId=id;
 
-  editingRecurringId = null;
-
-  selectedMembers = [];
-
-  selectedEvent = null;
-
-  selectedRepeat = "none";
-
+  selectedMembers=[];
+  selectedEvent=null;
 
   $("editorOverlay")
     .classList.add("show");
 
 
-  $("editorTitle").textContent =
+  $("editorTitle").textContent=
     id
       ? "予定を編集"
       : "予定を追加";
 
 
-  $("deleteBtn").style.display =
+  $("deleteBtn").style.display=
     id
       ? "block"
       : "none";
 
 
-  const old =
-    id
-      ? data.find(e => e.id === id)
-      : null;
+  const old=id
+    ? data.find(e=>e.id===id)
+    : null;
 
 
-  $("dateInput").value =
-    old?.date ||
-    date ||
-    iso(new Date());
+  $("dateInput").value=
+    old?.date
+    ||date
+    ||iso(new Date());
 
 
-  /*
-    新規予定の場合は12:00
-  */
+  $("timeInput").value=
+    old?.time
+    ||(id ? "" : "12:00");
 
-  $("timeInput").value =
+
+  $("repeatWeekly").checked=
+    old?.type==="weekly";
+
+
+  $("repeatWeekly").disabled=
+    !!id;
+
+
+  selectedMembers=
     old
-      ? (old.time || "")
-      : "12:00";
-
-
-  $("customInput").value = "";
-
-
-  $("customWrap").style.display =
-    "none";
-
-
-  selectedMembers =
-    old
-      ? [...(old.members || [])]
+      ? [...(old.members||[])]
       : [];
 
 
-  selectedEvent =
-    old &&
-    allEventOptions().includes(old.event)
+  selectedEvent=
+    old
+    &&allEventOptions()
+      .includes(old.event)
 
       ? old.event
-
       : null;
 
 
-  selectedRepeat =
-    old?.repeat === "weekly"
-      ? "weekly"
-      : "none";
+  $("customInput").value="";
+
+  $("customWrap").style.display="none";
 
 
-  if(old && !selectedEvent){
+  if(
+    old
+    &&!selectedEvent
+  ){
 
-    $("customWrap").style.display =
-      "block";
+    $("customWrap").style.display="block";
 
-    $("customInput").value =
-      old.event;
+    $("customInput").value=old.event;
 
   }
 
@@ -1594,10 +1206,115 @@ function openEditor(
 }
 
 
+function openWeeklyOccurrenceEditor(date,weeklyId){
+
+  editingId=null;
+
+  const old=data.find(
+    e=>e.id===weeklyId
+  );
+
+  if(!old)return;
+
+
+  $("editorOverlay")
+    .classList.add("show");
+
+
+  $("editorTitle").textContent=
+    "毎週の予定";
+
+
+  $("deleteBtn").style.display="block";
+
+
+  $("dateInput").value=date;
+
+  $("timeInput").value=
+    old.time||"";
+
+
+  $("repeatWeekly").checked=true;
+
+  $("repeatWeekly").disabled=true;
+
+
+  selectedMembers=[
+    ...(old.members||[])
+  ];
+
+
+  selectedEvent=
+    allEventOptions()
+      .includes(old.event)
+
+      ? old.event
+      : null;
+
+
+  $("customInput").value=old.event;
+
+  $("customWrap").style.display=
+    selectedEvent
+      ? "none"
+      : "block";
+
+
+  renderEditorOptions();
+
+
+  $("deleteBtn").onclick=async()=>{
+
+    if(
+      !confirm(
+        "この日だけ予定を削除しますか？"
+      )
+    ){
+      return;
+    }
+
+
+    const exception={
+      id:crypto.randomUUID(),
+      type:"weeklyException",
+      weeklyId,
+      date
+    };
+
+
+    if(db){
+
+      await firestoreFns.setDoc(
+        firestoreFns.doc(
+          db,
+          "familyCalendars",
+          roomId,
+          "events",
+          exception.id
+        ),
+        exception
+      );
+
+    }else{
+
+      data.push(exception);
+
+      localSave(data);
+
+    }
+
+
+    closeEditor();
+
+  };
+
+}
+
+
 function renderEditorOptions(){
 
-  $("memberGrid").innerHTML =
-    members.map(m => `
+  $("memberGrid").innerHTML=
+    members.map(m=>`
 
       <button
         class="
@@ -1617,15 +1334,16 @@ function renderEditorOptions(){
     `).join("");
 
 
-  $("eventGrid").innerHTML =
+  $("eventGrid").innerHTML=
+
     allEventOptions()
-      .map(e => `
+      .map(e=>`
 
         <button
           class="
             event-btn
             ${
-              selectedEvent === e
+              selectedEvent===e
                 ? "selected"
                 : ""
             }
@@ -1635,10 +1353,9 @@ function renderEditorOptions(){
           ${e}
         </button>
 
-      `)
-      .join("")
-    +
-    `
+      `).join("")
+
+    +`
       <button id="manageEventsBtn">
         予定を管理
       </button>
@@ -1647,19 +1364,16 @@ function renderEditorOptions(){
 
   document
     .querySelectorAll("[data-member]")
-    .forEach(b => {
+    .forEach(b=>
+      b.onclick=()=>{
 
-      b.onclick = () => {
+        const id=b.dataset.member;
 
-        const id =
-          b.dataset.member;
-
-
-        selectedMembers =
+        selectedMembers=
           selectedMembers.includes(id)
 
             ? selectedMembers.filter(
-                x => x !== id
+                x=>x!==id
               )
 
             : [
@@ -1670,75 +1384,35 @@ function renderEditorOptions(){
 
         renderEditorOptions();
 
-      };
-
-    });
+      }
+    );
 
 
   document
     .querySelectorAll("[data-event]")
-    .forEach(b => {
+    .forEach(b=>
+      b.onclick=()=>{
 
-      b.onclick = () => {
+        selectedEvent=b.dataset.event;
 
-        selectedEvent =
-          b.dataset.event;
-
-
-        $("customWrap").style.display =
-          "none";
-
+        $("customWrap").style.display="none";
 
         renderEditorOptions();
 
-      };
-
-    });
-
-
-  $("manageEventsBtn").onclick =
-    openManage;
+      }
+    );
 
 
-  document
-    .querySelectorAll("[data-repeat]")
-    .forEach(b => {
-
-      b.classList.toggle(
-        "selected",
-        b.dataset.repeat === selectedRepeat
-      );
-
-
-      b.onclick = () => {
-
-        selectedRepeat =
-          b.dataset.repeat;
-
-
-        document
-          .querySelectorAll("[data-repeat]")
-          .forEach(btn => {
-
-            btn.classList.toggle(
-              "selected",
-              btn.dataset.repeat === selectedRepeat
-            );
-
-          });
-
-      };
-
-    });
+  $("manageEventsBtn").onclick=openManage;
 
 }
 
 
 async function saveCurrent(){
 
-  const event =
-    selectedEvent ||
-    $("customInput").value.trim();
+  const event=
+    selectedEvent
+    ||$("customInput").value.trim();
 
 
   if(!event){
@@ -1752,36 +1426,44 @@ async function saveCurrent(){
   }
 
 
-  const obj = {
-
-    id:
-      editingId ||
-      crypto.randomUUID(),
-
-    date:
-      $("dateInput").value,
-
-    members:
-      selectedMembers,
-
-    time:
-      $("timeInput").value,
-
-    event,
-
-    repeat:
-      selectedRepeat
-
-  };
+  const date=$("dateInput").value;
 
 
-  if(!obj.date){
+  if(!date){
 
     alert(
       "日付を入力してください。"
     );
 
     return;
+
+  }
+
+
+  const repeatWeekly=
+    $("repeatWeekly").checked;
+
+
+  const d=parseISO(date);
+
+
+  const obj={
+    id:editingId||crypto.randomUUID(),
+    date,
+    members:selectedMembers,
+    time:$("timeInput").value,
+    event
+  };
+
+
+  if(
+    !editingId
+    &&repeatWeekly
+  ){
+
+    obj.type="weekly";
+
+    obj.weekday=d.getDay();
 
   }
 
@@ -1804,24 +1486,19 @@ async function saveCurrent(){
 
   }else{
 
-    const i =
-      data.findIndex(
-        x => x.id === obj.id
-      );
+    const i=data.findIndex(
+      x=>x.id===obj.id
+    );
 
 
-    if(i >= 0){
-
-      data[i] = obj;
-
+    if(i>=0){
+      data[i]=obj;
     }else{
-
       data.push(obj);
-
     }
 
 
-    localSave();
+    localSave(data);
 
   }
 
@@ -1833,22 +1510,12 @@ async function saveCurrent(){
 
 async function deleteCurrent(){
 
-  if(!editingId){
-    return;
-  }
-
-
-  const target =
-    data.find(
-      x => x.id === editingId
-    );
+  if(!editingId)return;
 
 
   if(
     !confirm(
-      target?.repeat === "weekly"
-        ? "この毎週の予定をすべて削除しますか？"
-        : "この予定を削除しますか？"
+      "この予定を削除しますか？"
     )
   ){
     return;
@@ -1869,43 +1536,13 @@ async function deleteCurrent(){
 
     );
 
-
-    if(target?.repeat === "weekly"){
-
-      const relatedExceptions =
-        data.filter(x =>
-          x.type === "exception" &&
-          x.recurringId === editingId
-        );
-
-
-      for(const ex of relatedExceptions){
-
-        await firestoreFns.deleteDoc(
-
-          firestoreFns.doc(
-            db,
-            "familyCalendars",
-            roomId,
-            "events",
-            ex.id
-          )
-
-        );
-
-      }
-
-    }
-
   }else{
 
-    data = data.filter(x =>
-      x.id !== editingId &&
-      x.recurringId !== editingId
+    data=data.filter(
+      e=>e.id!==editingId
     );
 
-
-    localSave();
+    localSave(data);
 
   }
 
@@ -1920,10 +1557,11 @@ function closeEditor(){
   $("editorOverlay")
     .classList.remove("show");
 
+  editingId=null;
 
-  editingId = null;
+  $("repeatWeekly").disabled=false;
 
-  editingRecurringId = null;
+  $("deleteBtn").onclick=deleteCurrent;
 
 }
 
@@ -1933,7 +1571,6 @@ function openManage(){
   $("manageOverlay")
     .classList.add("show");
 
-
   renderManage();
 
 }
@@ -1941,15 +1578,16 @@ function openManage(){
 
 function renderManage(){
 
-  const all =
-    [...new Set([
+  const all=[
+    ...new Set([
       ...initialEvents,
       ...customEvents
-    ])];
+    ])
+  ];
 
 
-  $("manageList").innerHTML =
-    all.map(e => `
+  $("manageList").innerHTML=
+    all.map(e=>`
 
       <div class="manage-item">
 
@@ -1984,19 +1622,16 @@ function renderManage(){
 
   document
     .querySelectorAll("[data-show]")
-    .forEach(x => {
+    .forEach(x=>
+      x.onchange=()=>{
 
-      x.onchange = () => {
+        const e=x.dataset.show;
 
-        const e =
-          x.dataset.show;
-
-
-        hiddenEvents =
+        hiddenEvents=
           x.checked
 
             ? hiddenEvents.filter(
-                v => v !== e
+                v=>v!==e
               )
 
             : [
@@ -2007,26 +1642,24 @@ function renderManage(){
 
         saveEventSettings();
 
-      };
-
-    });
+      }
+    );
 
 
   document
     .querySelectorAll("[data-remove]")
-    .forEach(x => {
+    .forEach(x=>
+      x.onclick=()=>{
 
-      x.onclick = () => {
-
-        customEvents =
+        customEvents=
           customEvents.filter(
-            v => v !== x.dataset.remove
+            v=>v!==x.dataset.remove
           );
 
 
-        hiddenEvents =
+        hiddenEvents=
           hiddenEvents.filter(
-            v => v !== x.dataset.remove
+            v=>v!==x.dataset.remove
           );
 
 
@@ -2034,9 +1667,8 @@ function renderManage(){
 
         renderManage();
 
-      };
-
-    });
+      }
+    );
 
 }
 
@@ -2044,50 +1676,43 @@ function renderManage(){
 function saveEventSettings(){
 
   localStorage.setItem(
-
     "familyCalendarEventSettings",
-
     JSON.stringify({
       customEvents,
       hiddenEvents
     })
-
   );
-
 
   renderEditorOptions();
 
 }
 
 
-const saved =
-  JSON.parse(
-    localStorage.getItem(
-      "familyCalendarEventSettings"
-    ) || "{}"
-  );
+const saved=JSON.parse(
+  localStorage.getItem(
+    "familyCalendarEventSettings"
+  )||"{}"
+);
 
+customEvents=
+  saved.customEvents||[];
 
-customEvents =
-  saved.customEvents || [];
+hiddenEvents=
+  saved.hiddenEvents||[];
 
-
-hiddenEvents =
-  saved.hiddenEvents || [];
-
-
-/*
-  Firebase接続
-*/
 
 async function connectFirebase(){
 
-  const raw =
-    $("firebaseConfig").value.trim();
+  const raw=
+    $("firebaseConfig")
+      .value
+      .trim();
 
 
-  const room =
-    $("roomInput").value.trim();
+  const room=
+    $("roomInput")
+      .value
+      .trim();
 
 
   if(!room){
@@ -2106,13 +1731,12 @@ async function connectFirebase(){
     room
   );
 
-
-  roomId = room;
+  roomId=room;
 
 
   if(!raw){
 
-    $("shareStatus").textContent =
+    $("shareStatus").textContent=
       "この端末ではローカル保存で使用中です。家族共有にはFirebase設定が必要です。";
 
     return;
@@ -2122,8 +1746,7 @@ async function connectFirebase(){
 
   try{
 
-    const config =
-      JSON.parse(raw);
+    const config=JSON.parse(raw);
 
 
     localStorage.setItem(
@@ -2133,7 +1756,7 @@ async function connectFirebase(){
 
 
     const [
-      { initializeApp },
+      {initializeApp},
       {
         getFirestore,
         collection,
@@ -2142,32 +1765,30 @@ async function connectFirebase(){
         doc,
         deleteDoc
       }
-    ] =
-      await Promise.all([
+    ]=
+    await Promise.all([
 
-        import(
-          "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"
-        ),
+      import(
+        "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"
+      ),
 
-        import(
-          "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js"
-        )
+      import(
+        "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js"
+      )
 
-      ]);
-
-
-    const app =
-      initializeApp(
-        config,
-        "family-calendar-" + Date.now()
-      );
+    ]);
 
 
-    db =
-      getFirestore(app);
+    const app=initializeApp(
+      config,
+      "family-calendar-"+Date.now()
+    );
 
 
-    firestoreFns = {
+    db=getFirestore(app);
+
+
+    firestoreFns={
       collection,
       onSnapshot,
       setDoc,
@@ -2177,38 +1798,34 @@ async function connectFirebase(){
 
 
     if(unsubscribe){
-
       unsubscribe();
-
     }
 
 
-    unsubscribe =
-      onSnapshot(
+    unsubscribe=onSnapshot(
 
-        collection(
-          db,
-          "familyCalendars",
-          roomId,
-          "events"
-        ),
+      collection(
+        db,
+        "familyCalendars",
+        roomId,
+        "events"
+      ),
 
-        snap => {
+      snap=>{
 
-          data =
-            snap.docs.map(
-              d => d.data()
-            );
+        data=
+          snap.docs.map(
+            d=>d.data()
+          );
 
+        render();
 
-          render();
+      }
 
-        }
-
-      );
+    );
 
 
-    $("shareStatus").textContent =
+    $("shareStatus").textContent=
       `「${roomId}」で家族共有に接続しました。`;
 
 
@@ -2235,88 +1852,143 @@ async function connectFirebase(){
 }
 
 
-/*
-  各ボタン
-*/
+$("addBtn").onclick=()=>{
 
-$("addBtn").onclick =
-  () => openEditor(
+  openEditor(
     iso(new Date())
   );
 
+};
 
-$("dayCloseBtn").onclick =
+
+$("dayCloseBtn").onclick=
   closeDay;
 
 
-$("cancelBtn").onclick =
+$("cancelBtn").onclick=
   closeEditor;
 
 
-$("saveBtn").onclick =
+$("saveBtn").onclick=
   saveCurrent;
 
 
-$("deleteBtn").onclick =
+$("deleteBtn").onclick=
   deleteCurrent;
 
 
-$("customEventBtn").onclick =
-  () => {
+$("customEventBtn").onclick=()=>{
 
-    $("customWrap").style.display =
-      $("customWrap").style.display === "none"
+  $("customWrap").style.display=
 
-        ? "block"
+    $("customWrap").style.display==="none"
 
-        : "none";
+      ? "block"
 
-
-    selectedEvent = null;
+      : "none";
 
 
-    renderEditorOptions();
+  selectedEvent=null;
+
+  renderEditorOptions();
+
+
+  if(
+    $("customWrap").style.display==="block"
+  ){
+
+    $("customInput").focus();
+
+  }
+
+};
+
+
+$("prevBtn").onclick=()=>{
+
+  if(view==="month"){
+
+    cursor.setMonth(
+      cursor.getMonth()-1
+    );
+
+  }else{
+
+    cursor.setDate(
+      cursor.getDate()-7
+    );
+
+  }
+
+  render();
+
+};
+
+
+$("nextBtn").onclick=()=>{
+
+  if(view==="month"){
+
+    cursor.setMonth(
+      cursor.getMonth()+1
+    );
+
+  }else{
+
+    cursor.setDate(
+      cursor.getDate()+7
+    );
+
+  }
+
+  render();
+
+};
+
+
+/* 月間カレンダーの左右フリック */
+
+let touchStartX=0;
+let touchStartY=0;
+
+
+$("monthView").addEventListener(
+  "touchstart",
+  event=>{
+
+    const touch=event.changedTouches[0];
+
+    touchStartX=touch.clientX;
+    touchStartY=touch.clientY;
+
+  },
+  {passive:true}
+);
+
+
+$("monthView").addEventListener(
+  "touchend",
+  event=>{
+
+    const touch=event.changedTouches[0];
+
+    const diffX=
+      touch.clientX-touchStartX;
+
+    const diffY=
+      touch.clientY-touchStartY;
 
 
     if(
-      $("customWrap").style.display ===
-      "block"
+      Math.abs(diffX)<50
+      ||
+      Math.abs(diffX)<=Math.abs(diffY)
     ){
-
-      $("customInput").focus();
-
-    }
-
-  };
-
-
-$("prevBtn").onclick =
-  () => {
-
-    if(view === "month"){
-
-      cursor.setMonth(
-        cursor.getMonth()-1
-      );
-
-    }else{
-
-      cursor.setDate(
-        cursor.getDate()-7
-      );
-
+      return;
     }
 
 
-    render();
-
-  };
-
-
-$("nextBtn").onclick =
-  () => {
-
-    if(view === "month"){
+    if(diffX<0){
 
       cursor.setMonth(
         cursor.getMonth()+1
@@ -2324,8 +1996,8 @@ $("nextBtn").onclick =
 
     }else{
 
-      cursor.setDate(
-        cursor.getDate()+7
+      cursor.setMonth(
+        cursor.getMonth()-1
       );
 
     }
@@ -2333,298 +2005,111 @@ $("nextBtn").onclick =
 
     render();
 
-  };
+  },
+  {passive:true}
+);
 
 
 document
   .querySelectorAll(".tabs button")
-  .forEach(b => {
+  .forEach(b=>
+    b.onclick=()=>{
 
-    b.onclick = () => {
-
-      view =
-        b.dataset.view;
-
+      view=b.dataset.view;
 
       render();
 
-    };
-
-  });
-
-
-/*
-  ︙メニュー
-*/
-
-$("menuBtn").onclick =
-  () => {
-
-    $("menu")
-      .classList.toggle("show");
-
-  };
+    }
+  );
 
 
-$("shareMenuBtn").onclick =
-  () => {
+$("shareBtn").onclick=()=>{
 
-    $("menu")
-      .classList.remove("show");
-
-
-    $("settingsOverlay")
-      .classList.add("show");
+  $("settingsOverlay")
+    .classList.add("show");
 
 
-    $("roomInput").value =
-      roomId;
+  $("roomInput").value=
+    roomId;
 
 
-    $("firebaseConfig").value =
-      localStorage.getItem(
-        "familyCalendarFirebaseConfig"
-      ) || "";
+  $("firebaseConfig").value=
+    localStorage.getItem(
+      "familyCalendarFirebaseConfig"
+    )||"";
 
-  };
-
-
-$("manageMenuBtn").onclick =
-  () => {
-
-    $("menu")
-      .classList.remove("show");
-
-    openManage();
-
-  };
+};
 
 
-$("closeSettings").onclick =
-  () => {
+$("closeSettings").onclick=()=>{
 
-    $("settingsOverlay")
-      .classList.remove("show");
+  $("settingsOverlay")
+    .classList.remove("show");
 
-  };
+};
 
 
-$("connectBtn").onclick =
+$("connectBtn").onclick=
   connectFirebase;
 
 
-$("toggleSettings").onclick =
-  () => {
+$("toggleSettings").onclick=()=>{
 
-    $("settingsBody")
-      .classList.toggle("show");
+  $("settingsBody")
+    .classList.toggle("show");
 
-  };
-
-
-$("closeManage").onclick =
-  () => {
-
-    $("manageOverlay")
-      .classList.remove("show");
-
-  };
+};
 
 
-$("addEventBtn").onclick =
-  () => {
+$("closeManage").onclick=()=>{
 
-    const v =
-      $("newEventInput").value.trim();
+  $("manageOverlay")
+    .classList.remove("show");
 
-
-    if(
-      v &&
-      !customEvents.includes(v) &&
-      !initialEvents.includes(v)
-    ){
-
-      customEvents.push(v);
-
-      $("newEventInput").value = "";
-
-      saveEventSettings();
-
-      renderManage();
-
-    }
-
-  };
+};
 
 
-/*
-  月間カレンダーの左右フリック
-*/
+$("addEventBtn").onclick=()=>{
 
-let touchStartX = 0;
-let touchStartY = 0;
-
-
-$("calendarArea")
-  .addEventListener(
-    "touchstart",
-    event => {
-
-      const touch =
-        event.changedTouches[0];
+  const v=
+    $("newEventInput")
+      .value
+      .trim();
 
 
-      touchStartX =
-        touch.clientX;
+  if(
+    v
+    &&!customEvents.includes(v)
+    &&!initialEvents.includes(v)
+  ){
 
+    customEvents.push(v);
 
-      touchStartY =
-        touch.clientY;
+    $("newEventInput").value="";
 
-    },
-    {passive:true}
-  );
+    saveEventSettings();
 
+    renderManage();
 
-$("calendarArea")
-  .addEventListener(
-    "touchend",
-    event => {
+  }
 
-      if(view !== "month"){
-        return;
-      }
+};
 
-
-      const touch =
-        event.changedTouches[0];
-
-
-      const diffX =
-        touch.clientX -
-        touchStartX;
-
-
-      const diffY =
-        touch.clientY -
-        touchStartY;
-
-
-      /*
-        縦方向への操作より
-        横方向への移動が大きい場合だけ
-        月を変更
-      */
-
-      if(
-        Math.abs(diffX) < 60 ||
-        Math.abs(diffX) < Math.abs(diffY)
-      ){
-        return;
-      }
-
-
-      /*
-        左へフリック → 次月
-      */
-
-      if(diffX < 0){
-
-        cursor.setMonth(
-          cursor.getMonth()+1
-        );
-
-      }
-
-      /*
-        右へフリック → 前月
-      */
-
-      else{
-
-        cursor.setMonth(
-          cursor.getMonth()-1
-        );
-
-      }
-
-
-      render();
-
-    },
-    {passive:true}
-  );
-
-
-/*
-  初回表示
-*/
 
 render();
 
-
-/*
-  保存済みFirebase設定がある場合は
-  自動的に家族共有へ接続
-*/
-
-async function autoConnectFirebase(){
-
-  const savedConfig =
-    localStorage.getItem(
-      "familyCalendarFirebaseConfig"
-    );
-
-
-  const savedRoom =
-    localStorage.getItem(
-      "familyCalendarRoom"
-    );
-
-
-  if(!savedConfig || !savedRoom){
-    return;
-  }
-
-
-  $("firebaseConfig").value =
-    savedConfig;
-
-
-  $("roomInput").value =
-    savedRoom;
-
-
-  await connectFirebase();
-
-}
-
-
-/*
-  Service Worker
-*/
 
 if("serviceWorker" in navigator){
 
   window.addEventListener(
     "load",
-    () => {
-
+    ()=>
       navigator.serviceWorker
         .register("./sw.js")
-        .catch(console.error);
-
-    }
+        .catch(console.error)
   );
 
 }
-
-
-/*
-  Firebase自動接続
-*/
-
-autoConnectFirebase();
 
 </script>
 

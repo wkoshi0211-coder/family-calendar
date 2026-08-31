@@ -1,4 +1,4 @@
-const CACHE = "wagaya-calendar-v3";
+const CACHE = "wagaya-calendar-v4";
 
 const ASSETS = [
   "./",

@@ -663,6 +663,7 @@ let hiddenEvents=[];
 let view="month";
 let cursor=new Date();
 let editingId=null;
+let editingFirestoreId=null;
 let selectedMembers=[];
 let selectedEvent=null;
 
@@ -1126,6 +1127,15 @@ function openEditor(date,id=null){
 
   editingId=id;
 
+  const editingEvent=id
+    ? data.find(e=>e.id===id)
+    : null;
+
+  editingFirestoreId=
+    editingEvent?.firestoreId
+    ||editingEvent?.id
+    ||null;
+
   selectedMembers=[];
   selectedEvent=null;
 
@@ -1143,6 +1153,10 @@ function openEditor(date,id=null){
     id
       ? "block"
       : "none";
+
+  // 毎週の予定を開いた後でも、通常の予定では
+  // 必ず通常の削除処理に戻す
+  $("deleteBtn").onclick=deleteCurrent;
 
 
   const old=id
@@ -1209,6 +1223,7 @@ function openEditor(date,id=null){
 function openWeeklyOccurrenceEditor(date,weeklyId){
 
   editingId=null;
+  editingFirestoreId=null;
 
   const old=data.find(
     e=>e.id===weeklyId
@@ -1510,8 +1525,14 @@ async function saveCurrent(){
 
 async function deleteCurrent(){
 
-  if(!editingId)return;
+  const targetId=
+    editingFirestoreId
+    ||editingId;
 
+  if(!targetId){
+    alert("削除する予定を選択してください。");
+    return;
+  }
 
   if(
     !confirm(
@@ -1521,33 +1542,49 @@ async function deleteCurrent(){
     return;
   }
 
+  try{
 
-  if(db){
+    if(db){
 
-    await firestoreFns.deleteDoc(
+      await firestoreFns.deleteDoc(
 
-      firestoreFns.doc(
-        db,
-        "familyCalendars",
-        roomId,
-        "events",
-        editingId
-      )
+        firestoreFns.doc(
+          db,
+          "familyCalendars",
+          roomId,
+          "events",
+          targetId
+        )
 
+      );
+
+      data=data.filter(
+        e=>e.firestoreId!==targetId
+          &&e.id!==editingId
+      );
+
+      render();
+
+    }else{
+
+      data=data.filter(
+        e=>e.id!==editingId
+      );
+
+      localSave(data);
+    }
+
+    closeEditor();
+
+  }catch(e){
+
+    console.error(e);
+
+    alert(
+      "予定を削除できませんでした。"
     );
-
-  }else{
-
-    data=data.filter(
-      e=>e.id!==editingId
-    );
-
-    localSave(data);
 
   }
-
-
-  closeEditor();
 
 }
 
@@ -1558,6 +1595,7 @@ function closeEditor(){
     .classList.remove("show");
 
   editingId=null;
+  editingFirestoreId=null;
 
   $("repeatWeekly").disabled=false;
 
@@ -1820,6 +1858,7 @@ async function connectFirebase(){
             return {
               ...saved,
               id:saved.id||d.id,
+              firestoreId:d.id,
               members:Array.isArray(saved.members)
                 ? saved.members
                 : []

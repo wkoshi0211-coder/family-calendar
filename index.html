@@ -1814,9 +1814,17 @@ async function connectFirebase(){
       snap=>{
 
         data=
-          snap.docs.map(
-            d=>d.data()
-          );
+          snap.docs.map(d=>{
+            const saved=d.data();
+
+            return {
+              ...saved,
+              id:saved.id||d.id,
+              members:Array.isArray(saved.members)
+                ? saved.members
+                : []
+            };
+          });
 
         render();
 
@@ -2097,6 +2105,28 @@ $("addEventBtn").onclick=()=>{
 
 
 render();
+
+
+/*
+  保存済みのFirebase設定と家族コードがある場合は、
+  アプリ起動時に自動で家族共有へ接続する。
+  これにより、Firestoreに保存済みの既存予定も
+  画面を開いた直後から読み込む。
+*/
+const savedFirebaseConfig=
+  localStorage.getItem(
+    "familyCalendarFirebaseConfig"
+  )||"";
+
+if(
+  roomId
+  &&savedFirebaseConfig
+){
+  $("roomInput").value=roomId;
+  $("firebaseConfig").value=savedFirebaseConfig;
+
+  connectFirebase();
+}
 
 
 if("serviceWorker" in navigator){

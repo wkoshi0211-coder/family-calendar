@@ -1,42 +1,2632 @@
-const CACHE = "wagaya-calendar-v5";
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f6f6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<title>わが家のカレンダー</title>
 
-const ASSETS = [
-  "./",
-  "./index.html",
-  "./manifest.webmanifest",
-  "./icon-180.png",
-  "./icon-192.png",
-  "./icon-512.png"
+<style>
+:root{
+  --purple:#7b4dbb;
+  --blue:#2474c6;
+  --orange:#e88732;
+  --green:#3b8b52;
+  --line:#d8d8d8;
+  --bg:#f6f6f6;
+  --text:#222;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
+  width:100%;
+  height:100%;
+  margin:0;
+  overflow:hidden;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+}
+
+.app{
+  width:100%;
+  height:100dvh;
+  max-width:900px;
+  margin:auto;
+  padding:8px 10px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  min-height:44px;
+  margin-bottom:4px;
+}
+
+.menu-wrap{
+  position:relative;
+}
+
+.menu-btn{
+  width:44px;
+  height:44px;
+  padding:0;
+  border:0;
+  background:transparent;
+  font-size:28px;
+  line-height:1;
+  border-radius:50%;
+}
+
+.menu{
+  display:none;
+  position:absolute;
+  top:46px;
+  right:0;
+  width:220px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  box-shadow:0 5px 18px rgba(0,0,0,.18);
+  overflow:hidden;
+  z-index:200;
+}
+
+.menu.show{
+  display:block;
+}
+
+.menu button{
+  width:100%;
+  border:0;
+  border-radius:0;
+  text-align:left;
+  background:#fff;
+  padding:14px;
+  min-height:48px;
+}
+
+button{
+  font:inherit;
+  border:1px solid #cfcfcf;
+  background:#fff;
+  border-radius:10px;
+  padding:9px 12px;
+  min-height:42px;
+  color:#222;
+}
+
+button:active{
+  transform:scale(.98);
+}
+
+.primary{
+  background:#333;
+  color:#fff;
+  border-color:#333;
+}
+
+.tabs{
+  display:flex;
+  gap:6px;
+  margin:0 0 8px;
+}
+
+.tabs button{
+  flex:1;
+}
+
+.tabs .active{
+  background:#333;
+  color:#fff;
+  border-color:#333;
+}
+
+.nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin:0 0 8px;
+}
+
+.nav button{
+  width:46px;
+  padding:0;
+  font-size:28px;
+}
+
+.nav .title{
+  flex:1;
+  text-align:center;
+  font-weight:700;
+  font-size:20px;
+}
+
+#monthView,
+#weekView{
+  min-height:0;
+}
+
+#monthView{
+  flex:1;
+}
+
+.calendar{
+  height:100%;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  touch-action:pan-y;
+}
+
+.weekdays,
+.month-grid{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+}
+
+.weekdays div{
+  text-align:center;
+  font-size:12px;
+  padding:7px 1px;
+  background:#fafafa;
+  border-bottom:1px solid var(--line);
+}
+
+.month-grid{
+  flex:1;
+  min-height:0;
+  grid-template-rows:repeat(6,minmax(0,1fr));
+}
+
+.day{
+  border-right:1px solid #e6e6e6;
+  border-bottom:1px solid #e6e6e6;
+  padding:3px;
+  min-width:0;
+  min-height:0;
+  overflow:hidden;
+  cursor:pointer;
+  position:relative;
+}
+
+.day:nth-child(7n){
+  border-right:0;
+}
+
+.day.muted{
+  background:#fafafa;
+  color:#aaa;
+}
+
+.day.today{
+  background:#fff9d9;
+}
+
+.date-num{
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:2px;
+}
+
+.event{
+  font-size:11px;
+  line-height:1.35;
+  margin:3px 0;
+  overflow:hidden;
+}
+
+.event-meta{
+  white-space:nowrap;
+  font-weight:700;
+  line-height:1.2;
+}
+
+.event-name{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  line-height:1.25;
+}
+
+.month-only-event{
+  margin:2px 0;
+}
+
+.month-only-event .event-name{
+  font-size:10px;
+}
+
+.more-events{
+  position:absolute;
+  right:4px;
+  bottom:3px;
+  font-size:10px;
+  color:#666;
+}
+
+.tag{
+  font-weight:800;
+}
+
+.f{
+  color:var(--purple);
+}
+
+.s{
+  color:var(--blue);
+}
+
+.m{
+  color:var(--orange);
+}
+
+.p{
+  color:var(--green);
+}
+
+.week-list{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  overflow:auto;
+  padding-bottom:8px;
+}
+
+.week-day{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px;
+  min-height:72px;
+  cursor:pointer;
+}
+
+.week-head{
+  font-weight:800;
+  margin-bottom:5px;
+}
+
+.empty{
+  color:#888;
+  font-size:14px;
+}
+
+.fab{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  font-size:30px;
+  background:#333;
+  color:#fff;
+  border:0;
+  box-shadow:0 3px 12px #999;
+  z-index:50;
+}
+
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.4);
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  padding:0;
+  z-index:100;
+}
+
+.overlay.show{
+  display:flex;
+}
+
+.sheet{
+  background:#fff;
+  width:min(700px,100%);
+  max-height:92dvh;
+  overflow:auto;
+  border-radius:18px 18px 0 0;
+  padding:18px 14px 22px;
+  position:relative;
+}
+
+.sheet h2{
+  margin:0 0 14px;
+  font-size:20px;
+}
+
+.label{
+  font-size:14px;
+  font-weight:700;
+  margin:14px 0 7px;
+}
+
+.member-grid,
+.event-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+
+.member-btn.selected,
+.event-btn.selected,
+.repeat-btn.selected{
+  outline:3px solid #333;
+}
+
+.member-btn{
+  font-weight:800;
+}
+
+.member-f{
+  color:var(--purple);
+}
+
+.member-s{
+  color:var(--blue);
+}
+
+.member-m{
+  color:var(--orange);
+}
+
+.member-p{
+  color:var(--green);
+}
+
+.repeat-grid{
+  display:flex;
+  gap:8px;
+}
+
+.repeat-btn{
+  flex:1;
+}
+
+input[type="time"],
+input[type="text"],
+input[type="date"]{
+  width:100%;
+  padding:11px;
+  border:1px solid #cfcfcf;
+  border-radius:9px;
+  font:inherit;
+}
+
+.row{
+  display:flex;
+  gap:8px;
+}
+
+.row>*{
+  flex:1;
+}
+
+.actions{
+  display:flex;
+  gap:8px;
+  margin-top:18px;
+}
+
+.actions button{
+  flex:1;
+}
+
+.event-manage{
+  margin-top:18px;
+  border-top:1px solid #ddd;
+  padding-top:12px;
+}
+
+.manage-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 0;
+  border-bottom:1px solid #eee;
+}
+
+.manage-item span{
+  flex:1;
+}
+
+.small{
+  font-size:12px;
+  color:#777;
+}
+
+.notice{
+  font-size:12px;
+  color:#666;
+  margin:4px 0 10px;
+}
+
+.settings{
+  display:none;
+}
+
+.settings.show{
+  display:block;
+}
+
+.day-event-item{
+  display:block;
+  width:100%;
+  text-align:left;
+  margin:7px 0;
+  padding:12px;
+  font-size:16px;
+}
+
+@media(max-width:600px){
+
+  .app{
+    padding:6px 6px;
+  }
+
+  .topbar{
+    min-height:40px;
+    margin-bottom:2px;
+  }
+
+  .menu-btn{
+    width:40px;
+    height:40px;
+  }
+
+  .tabs{
+    margin-bottom:6px;
+  }
+
+  .tabs button{
+    min-height:40px;
+    padding:7px 10px;
+  }
+
+  .nav{
+    margin-bottom:6px;
+  }
+
+  .nav button{
+    width:42px;
+    min-height:40px;
+  }
+
+  .nav .title{
+    font-size:18px;
+  }
+
+  .weekdays div{
+    padding:5px 1px;
+  }
+
+  .date-num{
+    font-size:12px;
+  }
+
+  .month-only-event .event-name{
+    font-size:9px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="topbar">
+    <div class="menu-wrap">
+      <button class="menu-btn" id="menuBtn" aria-label="メニュー">︙</button>
+
+      <div class="menu" id="menu">
+        <button id="shareMenuBtn">共有設定</button>
+        <button id="manageMenuBtn">よく使う予定を管理</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="active" data-view="month">月間</button>
+    <button data-view="week">週間</button>
+  </div>
+
+  <div class="nav">
+    <button id="prevBtn">‹</button>
+    <div class="title" id="periodTitle"></div>
+    <button id="nextBtn">›</button>
+  </div>
+
+  <div id="monthView">
+    <div class="calendar" id="calendarArea">
+
+      <div class="weekdays">
+        <div>日</div>
+        <div>月</div>
+        <div>火</div>
+        <div>水</div>
+        <div>木</div>
+        <div>金</div>
+        <div>土</div>
+      </div>
+
+      <div class="month-grid" id="monthGrid"></div>
+
+    </div>
+  </div>
+
+  <div id="weekView" style="display:none">
+    <div class="week-list" id="weekList"></div>
+  </div>
+
+</div>
+
+<button class="fab" id="addBtn">＋</button>
+
+
+<!-- 予定編集 -->
+
+<div class="overlay" id="editorOverlay">
+
+  <div class="sheet">
+
+    <h2 id="editorTitle">予定を追加</h2>
+
+    <div class="label">日付</div>
+    <input type="date" id="dateInput">
+
+    <div class="label">だれの予定？（複数選択可）</div>
+    <div class="member-grid" id="memberGrid"></div>
+
+    <div class="label">時刻（任意）</div>
+    <input type="time" id="timeInput">
+
+    <div class="label">予定を選ぶ</div>
+    <div class="event-grid" id="eventGrid"></div>
+
+    <div class="event-manage">
+      <button id="customEventBtn">その他を入力</button>
+
+      <div id="customWrap" style="display:none;margin-top:8px">
+        <input type="text" id="customInput" placeholder="予定を入力">
+      </div>
+    </div>
+
+    <div class="label">繰り返し</div>
+
+    <div class="repeat-grid">
+      <button class="repeat-btn selected" data-repeat="none">繰り返さない</button>
+      <button class="repeat-btn" data-repeat="weekly">毎週</button>
+    </div>
+
+    <div class="actions">
+      <button id="cancelBtn">キャンセル</button>
+      <button id="deleteBtn" style="display:none">削除</button>
+      <button class="primary" id="saveBtn">保存</button>
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- 共有設定 -->
+
+<div class="overlay" id="settingsOverlay">
+
+  <div class="sheet">
+
+    <h2>共有設定</h2>
+
+    <p class="notice">
+      家族共有には Firebase の設定が必要です。設定後、同じ「家族コード」を家族全員で使用すると同じ予定を共有できます。
+    </p>
+
+    <button id="toggleSettings">Firebase設定を入力する</button>
+
+    <div class="settings" id="settingsBody">
+
+      <div class="label">Firebase設定（JSON）</div>
+
+      <textarea
+        id="firebaseConfig"
+        style="width:100%;height:170px;padding:10px;border:1px solid #ccc;border-radius:9px;font-family:monospace"
+      ></textarea>
+
+    </div>
+
+    <div class="label">家族コード</div>
+    <input type="text" id="roomInput" placeholder="例：wagaya2026">
+
+    <div class="actions">
+      <button id="closeSettings">閉じる</button>
+      <button class="primary" id="connectBtn">保存して接続</button>
+    </div>
+
+    <p class="small" id="shareStatus"></p>
+
+  </div>
+
+</div>
+
+
+<!-- よく使う予定 -->
+
+<div class="overlay" id="manageOverlay">
+
+  <div class="sheet">
+
+    <h2>よく使う予定を管理</h2>
+
+    <div id="manageList"></div>
+
+    <div class="row" style="margin-top:12px">
+
+      <input
+        type="text"
+        id="newEventInput"
+        placeholder="新しい予定"
+      >
+
+      <button id="addEventBtn">追加</button>
+
+    </div>
+
+    <div class="actions">
+      <button id="closeManage">閉じる</button>
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- 日付別予定 -->
+
+<div class="overlay" id="dayOverlay">
+
+  <div class="sheet">
+
+    <h2 id="dayTitle"></h2>
+
+    <div id="dayEventList"></div>
+
+    <div class="actions">
+
+      <button id="dayCloseBtn">閉じる</button>
+
+      <button class="primary" id="dayAddBtn">
+        ＋ 予定を追加
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script type="module">
+
+const initialEvents = [
+  "部活",
+  "部活なし",
+  "スイミング",
+  "スイミングなし",
+  "よるとこ",
+  "よるとこ休み",
+  "歯医者",
+  "美容院",
+  "参観日",
+  "病院",
+  "図書館",
+  "富山",
+  "休み"
 ];
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches
-      .open(CACHE)
-      .then((cache) => cache.addAll(ASSETS))
-      .then(() => self.skipWaiting())
-  );
-});
+const members = [
+  {id:"father",label:"[父]",cls:"p"},
+  {id:"mother",label:"[母]",cls:"m"},
+  {id:"fumina",label:"[ふ]",cls:"f"},
+  {id:"sota",label:"[そ]",cls:"s"}
+];
 
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches
-      .keys()
-      .then((keys) =>
-        Promise.all(
-          keys
-            .filter((key) => key !== CACHE)
-            .map((key) => caches.delete(key))
-        )
-      )
-      .then(() => self.clients.claim())
-  );
-});
+let customEvents = [];
+let hiddenEvents = [];
 
-self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+let view = "month";
+let cursor = new Date();
+
+let editingId = null;
+let editingRecurringId = null;
+let selectedMembers = [];
+let selectedEvent = null;
+let selectedRepeat = "none";
+
+let db = null;
+let firestoreFns = null;
+let roomId = localStorage.getItem("familyCalendarRoom") || "";
+let unsubscribe = null;
+
+const LSKEY = "familyCalendarLocal";
+
+const $ = id => document.getElementById(id);
+
+
+function pad(n){
+  return String(n).padStart(2,"0");
+}
+
+
+function iso(d){
+
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+
+}
+
+
+function parseISO(s){
+
+  const [y,m,d] = s.split("-").map(Number);
+
+  return new Date(y,m-1,d);
+
+}
+
+
+function memberHtml(ids){
+
+  return ids.map(id => {
+
+    const m = members.find(x => x.id === id);
+
+    return m
+      ? `<span class="tag ${m.cls}">${m.label}</span>`
+      : "";
+
+  }).join("");
+
+}
+
+
+function eventText(e){
+
+  return `${memberHtml(e.members || [])}${e.time || ""}${e.event || ""}`;
+
+}
+
+
+function localLoad(){
+
+  try{
+
+    return JSON.parse(
+      localStorage.getItem(LSKEY) || "[]"
+    );
+
+  }catch{
+
+    return [];
+
+  }
+
+}
+
+
+function localSave(){
+
+  localStorage.setItem(
+    LSKEY,
+    JSON.stringify(data)
+  );
+
+  render();
+
+}
+
+
+let data = localLoad();
+
+
+function allEventOptions(){
+
+  return [...new Set([
+    ...initialEvents,
+    ...customEvents
+  ])].filter(x => !hiddenEvents.includes(x));
+
+}
+
+
+/*
+  指定日の予定を取得
+
+  通常予定
+  ＋
+  毎週予定
+
+  ただし、
+  「この日だけ削除」された毎週予定は除外
+*/
+
+function getEventsForDate(date){
+
+  const normalEvents = data.filter(e =>
+    e.type !== "exception" &&
+    e.repeat !== "weekly" &&
+    e.date === date
+  );
+
+
+  const exceptions = data.filter(e =>
+    e.type === "exception" &&
+    e.date === date
+  );
+
+
+  const weeklyEvents = data
+    .filter(e =>
+      e.type !== "exception" &&
+      e.repeat === "weekly"
+    )
+    .filter(e => {
+
+      const startDate = parseISO(e.date);
+      const targetDate = parseISO(date);
+
+      if(targetDate < startDate){
+        return false;
+      }
+
+      return targetDate.getDay() === startDate.getDay();
+
     })
+    .filter(e => {
+
+      return !exceptions.some(ex =>
+        ex.recurringId === e.id
+      );
+
+    })
+    .map(e => ({
+      ...e,
+      occurrenceDate:date,
+      isRecurringOccurrence:true
+    }));
+
+
+  return [
+    ...normalEvents,
+    ...weeklyEvents
+  ].sort((a,b) =>
+    (a.time || "99:99").localeCompare(
+      b.time || "99:99"
+    )
   );
-});
+
+}
+
+
+function openDay(date){
+
+  const d = parseISO(date);
+
+  const names = [
+    "日","月","火","水","木","金","土"
+  ];
+
+  $("dayTitle").textContent =
+    `${d.getMonth()+1}月${d.getDate()}日（${names[d.getDay()]}）`;
+
+
+  const es = getEventsForDate(date);
+
+
+  $("dayEventList").innerHTML = es.length
+
+    ? es.map(e => {
+
+        const id = e.isRecurringOccurrence
+          ? `recurring:${e.id}:${date}`
+          : e.id;
+
+        return `
+          <button
+            class="day-event-item"
+            data-edit-id="${id}"
+          >
+            ${eventText(e)}
+          </button>
+        `;
+
+      }).join("")
+
+    : `
+      <div
+        class="empty"
+        style="padding:16px 0"
+      >
+        予定はありません
+      </div>
+    `;
+
+
+  document
+    .querySelectorAll("[data-edit-id]")
+    .forEach(b => {
+
+      b.onclick = () => {
+
+        const value = b.dataset.editId;
+
+        if(value.startsWith("recurring:")){
+
+          const [,id,occurrenceDate] =
+            value.split(":");
+
+          closeDay();
+
+          openRecurringOccurrence(
+            occurrenceDate,
+            id
+          );
+
+          return;
+
+        }
+
+
+        const e = data.find(
+          x => x.id === value
+        );
+
+
+        if(e){
+
+          closeDay();
+
+          openEditor(
+            e.date,
+            e.id
+          );
+
+        }
+
+      };
+
+    });
+
+
+  $("dayAddBtn").onclick = () => {
+
+    closeDay();
+
+    openEditor(date);
+
+  };
+
+
+  $("dayOverlay").classList.add("show");
+
+}
+
+
+function closeDay(){
+
+  $("dayOverlay")
+    .classList.remove("show");
+
+}
+
+
+/*
+  毎週予定の「特定の日」を開く
+
+  編集ではなく、
+  この日だけ削除することができる
+*/
+
+function openRecurringOccurrence(
+  date,
+  recurringId
+){
+
+  const e = data.find(
+    x => x.id === recurringId
+  );
+
+  if(!e){
+    return;
+  }
+
+
+  $("dayTitle").textContent =
+    `${parseISO(date).getMonth()+1}月${parseISO(date).getDate()}日の予定`;
+
+
+  $("dayEventList").innerHTML = `
+
+    <div
+      style="
+        padding:8px 0 14px;
+        font-size:17px;
+      "
+    >
+      ${eventText(e)}
+    </div>
+
+    <div class="notice">
+      この予定は毎週繰り返される予定です。
+    </div>
+
+    <button
+      class="primary"
+      id="deleteThisOccurrenceBtn"
+      style="width:100%;margin-top:8px"
+    >
+      この日だけ削除
+    </button>
+
+    <button
+      id="deleteAllRecurringBtn"
+      style="width:100%;margin-top:8px"
+    >
+      すべての繰り返し予定を削除
+    </button>
+
+  `;
+
+
+  $("deleteThisOccurrenceBtn").onclick =
+    async () => {
+
+      if(
+        !confirm(
+          "この日の予定だけ削除しますか？"
+        )
+      ){
+        return;
+      }
+
+
+      const exception = {
+
+        id:crypto.randomUUID(),
+        type:"exception",
+        date,
+        recurringId
+
+      };
+
+
+      if(db){
+
+        await firestoreFns.setDoc(
+
+          firestoreFns.doc(
+            db,
+            "familyCalendars",
+            roomId,
+            "events",
+            exception.id
+          ),
+
+          exception
+
+        );
+
+      }else{
+
+        data.push(exception);
+
+        localSave();
+
+      }
+
+
+      closeDay();
+
+    };
+
+
+  $("deleteAllRecurringBtn").onclick =
+    async () => {
+
+      if(
+        !confirm(
+          "この毎週の予定をすべて削除しますか？"
+        )
+      ){
+        return;
+      }
+
+
+      if(db){
+
+        await firestoreFns.deleteDoc(
+
+          firestoreFns.doc(
+            db,
+            "familyCalendars",
+            roomId,
+            "events",
+            recurringId
+          )
+
+        );
+
+
+        const relatedExceptions =
+          data.filter(x =>
+            x.type === "exception" &&
+            x.recurringId === recurringId
+          );
+
+
+        for(const ex of relatedExceptions){
+
+          await firestoreFns.deleteDoc(
+
+            firestoreFns.doc(
+              db,
+              "familyCalendars",
+              roomId,
+              "events",
+              ex.id
+            )
+
+          );
+
+        }
+
+      }else{
+
+        data = data.filter(x =>
+          x.id !== recurringId &&
+          x.recurringId !== recurringId
+        );
+
+        localSave();
+
+      }
+
+
+      closeDay();
+
+    };
+
+
+  $("dayAddBtn").onclick = () => {
+
+    closeDay();
+
+    openEditor(date);
+
+  };
+
+
+  $("dayOverlay")
+    .classList.add("show");
+
+}
+
+
+function render(){
+
+  $("periodTitle").textContent =
+    view === "month"
+      ? `${cursor.getFullYear()}年 ${cursor.getMonth()+1}月`
+      : weekTitle();
+
+
+  $("monthView").style.display =
+    view === "month"
+      ? "block"
+      : "none";
+
+
+  $("weekView").style.display =
+    view === "week"
+      ? "block"
+      : "none";
+
+
+  $("monthView").style.flex =
+    view === "month"
+      ? "1"
+      : "0";
+
+
+  document
+    .querySelectorAll(".tabs button")
+    .forEach(b => {
+
+      b.classList.toggle(
+        "active",
+        b.dataset.view === view
+      );
+
+    });
+
+
+  if(view === "month"){
+
+    renderMonth();
+
+  }else{
+
+    renderWeek();
+
+  }
+
+}
+
+
+function renderMonth(){
+
+  const y = cursor.getFullYear();
+
+  const m = cursor.getMonth();
+
+  const first = new Date(y,m,1);
+
+  const start = new Date(
+    y,
+    m,
+    1 - first.getDay()
+  );
+
+
+  const grid = $("monthGrid");
+
+  grid.innerHTML = "";
+
+
+  const today = iso(new Date());
+
+
+  for(let i=0;i<42;i++){
+
+    const d = new Date(start);
+
+    d.setDate(
+      start.getDate()+i
+    );
+
+
+    const key = iso(d);
+
+
+    const dayEvents =
+      getEventsForDate(key);
+
+
+    const el =
+      document.createElement("div");
+
+
+    el.className =
+      "day" +
+      (
+        d.getMonth() !== m
+          ? " muted"
+          : ""
+      ) +
+      (
+        key === today
+          ? " today"
+          : ""
+      );
+
+
+    el.innerHTML = `
+
+      <div class="date-num">
+        ${d.getDate()}
+      </div>
+
+      ${dayEvents
+        .slice(0,3)
+        .map(e => `
+
+          <div
+            class="event month-only-event"
+            title="${e.event}"
+          >
+            <div class="event-name">
+              ${memberHtml(e.members || [])}${e.event || ""}
+            </div>
+          </div>
+
+        `)
+        .join("")
+      }
+
+      ${
+        dayEvents.length >= 4
+
+          ? `
+            <div class="more-events">
+              他
+            </div>
+          `
+
+          : ""
+
+      }
+
+    `;
+
+
+    el.onclick = () =>
+      openDay(key);
+
+
+    grid.appendChild(el);
+
+  }
+
+}
+
+
+function weekStart(d){
+
+  const x = new Date(d);
+
+  x.setHours(0,0,0,0);
+
+  x.setDate(
+    x.getDate() - x.getDay()
+  );
+
+  return x;
+
+}
+
+
+function weekTitle(){
+
+  const s = weekStart(cursor);
+
+  const e = new Date(s);
+
+  e.setDate(
+    e.getDate()+6
+  );
+
+
+  return `${s.getMonth()+1}/${s.getDate()}〜${e.getMonth()+1}/${e.getDate()}`;
+
+}
+
+
+function renderWeek(){
+
+  const list = $("weekList");
+
+  const s = weekStart(cursor);
+
+  list.innerHTML = "";
+
+
+  const names = [
+    "日","月","火","水","木","金","土"
+  ];
+
+
+  for(let i=0;i<7;i++){
+
+    const d = new Date(s);
+
+    d.setDate(
+      s.getDate()+i
+    );
+
+
+    const key = iso(d);
+
+
+    const es =
+      getEventsForDate(key);
+
+
+    const el =
+      document.createElement("div");
+
+
+    el.className = "week-day";
+
+
+    el.innerHTML = `
+
+      <div class="week-head">
+        ${d.getMonth()+1}/${d.getDate()}（${names[i]}）
+      </div>
+
+      ${
+        es.length
+
+          ? es.map(e => `
+              <div class="event">
+                ${eventText(e)}
+              </div>
+            `).join("")
+
+          : `
+              <div class="empty">
+                予定なし
+              </div>
+            `
+      }
+
+    `;
+
+
+    el.onclick = () =>
+      openDay(key);
+
+
+    list.appendChild(el);
+
+  }
+
+}
+
+
+function openEditor(
+  date,
+  id=null
+){
+
+  editingId = id;
+
+  editingRecurringId = null;
+
+  selectedMembers = [];
+
+  selectedEvent = null;
+
+  selectedRepeat = "none";
+
+
+  $("editorOverlay")
+    .classList.add("show");
+
+
+  $("editorTitle").textContent =
+    id
+      ? "予定を編集"
+      : "予定を追加";
+
+
+  $("deleteBtn").style.display =
+    id
+      ? "block"
+      : "none";
+
+
+  const old =
+    id
+      ? data.find(e => e.id === id)
+      : null;
+
+
+  $("dateInput").value =
+    old?.date ||
+    date ||
+    iso(new Date());
+
+
+  /*
+    新規予定の場合は12:00
+  */
+
+  $("timeInput").value =
+    old
+      ? (old.time || "")
+      : "12:00";
+
+
+  $("customInput").value = "";
+
+
+  $("customWrap").style.display =
+    "none";
+
+
+  selectedMembers =
+    old
+      ? [...(old.members || [])]
+      : [];
+
+
+  selectedEvent =
+    old &&
+    allEventOptions().includes(old.event)
+
+      ? old.event
+
+      : null;
+
+
+  selectedRepeat =
+    old?.repeat === "weekly"
+      ? "weekly"
+      : "none";
+
+
+  if(old && !selectedEvent){
+
+    $("customWrap").style.display =
+      "block";
+
+    $("customInput").value =
+      old.event;
+
+  }
+
+
+  renderEditorOptions();
+
+}
+
+
+function renderEditorOptions(){
+
+  $("memberGrid").innerHTML =
+    members.map(m => `
+
+      <button
+        class="
+          member-btn
+          member-${m.cls}
+          ${
+            selectedMembers.includes(m.id)
+              ? "selected"
+              : ""
+          }
+        "
+        data-member="${m.id}"
+      >
+        ${m.label}
+      </button>
+
+    `).join("");
+
+
+  $("eventGrid").innerHTML =
+    allEventOptions()
+      .map(e => `
+
+        <button
+          class="
+            event-btn
+            ${
+              selectedEvent === e
+                ? "selected"
+                : ""
+            }
+          "
+          data-event="${e}"
+        >
+          ${e}
+        </button>
+
+      `)
+      .join("")
+    +
+    `
+      <button id="manageEventsBtn">
+        予定を管理
+      </button>
+    `;
+
+
+  document
+    .querySelectorAll("[data-member]")
+    .forEach(b => {
+
+      b.onclick = () => {
+
+        const id =
+          b.dataset.member;
+
+
+        selectedMembers =
+          selectedMembers.includes(id)
+
+            ? selectedMembers.filter(
+                x => x !== id
+              )
+
+            : [
+                ...selectedMembers,
+                id
+              ];
+
+
+        renderEditorOptions();
+
+      };
+
+    });
+
+
+  document
+    .querySelectorAll("[data-event]")
+    .forEach(b => {
+
+      b.onclick = () => {
+
+        selectedEvent =
+          b.dataset.event;
+
+
+        $("customWrap").style.display =
+          "none";
+
+
+        renderEditorOptions();
+
+      };
+
+    });
+
+
+  $("manageEventsBtn").onclick =
+    openManage;
+
+
+  document
+    .querySelectorAll("[data-repeat]")
+    .forEach(b => {
+
+      b.classList.toggle(
+        "selected",
+        b.dataset.repeat === selectedRepeat
+      );
+
+
+      b.onclick = () => {
+
+        selectedRepeat =
+          b.dataset.repeat;
+
+
+        document
+          .querySelectorAll("[data-repeat]")
+          .forEach(btn => {
+
+            btn.classList.toggle(
+              "selected",
+              btn.dataset.repeat === selectedRepeat
+            );
+
+          });
+
+      };
+
+    });
+
+}
+
+
+async function saveCurrent(){
+
+  const event =
+    selectedEvent ||
+    $("customInput").value.trim();
+
+
+  if(!event){
+
+    alert(
+      "予定を選ぶか入力してください。"
+    );
+
+    return;
+
+  }
+
+
+  const obj = {
+
+    id:
+      editingId ||
+      crypto.randomUUID(),
+
+    date:
+      $("dateInput").value,
+
+    members:
+      selectedMembers,
+
+    time:
+      $("timeInput").value,
+
+    event,
+
+    repeat:
+      selectedRepeat
+
+  };
+
+
+  if(!obj.date){
+
+    alert(
+      "日付を入力してください。"
+    );
+
+    return;
+
+  }
+
+
+  if(db){
+
+    await firestoreFns.setDoc(
+
+      firestoreFns.doc(
+        db,
+        "familyCalendars",
+        roomId,
+        "events",
+        obj.id
+      ),
+
+      obj
+
+    );
+
+  }else{
+
+    const i =
+      data.findIndex(
+        x => x.id === obj.id
+      );
+
+
+    if(i >= 0){
+
+      data[i] = obj;
+
+    }else{
+
+      data.push(obj);
+
+    }
+
+
+    localSave();
+
+  }
+
+
+  closeEditor();
+
+}
+
+
+async function deleteCurrent(){
+
+  if(!editingId){
+    return;
+  }
+
+
+  const target =
+    data.find(
+      x => x.id === editingId
+    );
+
+
+  if(
+    !confirm(
+      target?.repeat === "weekly"
+        ? "この毎週の予定をすべて削除しますか？"
+        : "この予定を削除しますか？"
+    )
+  ){
+    return;
+  }
+
+
+  if(db){
+
+    await firestoreFns.deleteDoc(
+
+      firestoreFns.doc(
+        db,
+        "familyCalendars",
+        roomId,
+        "events",
+        editingId
+      )
+
+    );
+
+
+    if(target?.repeat === "weekly"){
+
+      const relatedExceptions =
+        data.filter(x =>
+          x.type === "exception" &&
+          x.recurringId === editingId
+        );
+
+
+      for(const ex of relatedExceptions){
+
+        await firestoreFns.deleteDoc(
+
+          firestoreFns.doc(
+            db,
+            "familyCalendars",
+            roomId,
+            "events",
+            ex.id
+          )
+
+        );
+
+      }
+
+    }
+
+  }else{
+
+    data = data.filter(x =>
+      x.id !== editingId &&
+      x.recurringId !== editingId
+    );
+
+
+    localSave();
+
+  }
+
+
+  closeEditor();
+
+}
+
+
+function closeEditor(){
+
+  $("editorOverlay")
+    .classList.remove("show");
+
+
+  editingId = null;
+
+  editingRecurringId = null;
+
+}
+
+
+function openManage(){
+
+  $("manageOverlay")
+    .classList.add("show");
+
+
+  renderManage();
+
+}
+
+
+function renderManage(){
+
+  const all =
+    [...new Set([
+      ...initialEvents,
+      ...customEvents
+    ])];
+
+
+  $("manageList").innerHTML =
+    all.map(e => `
+
+      <div class="manage-item">
+
+        <input
+          type="checkbox"
+          data-show="${e}"
+          ${
+            hiddenEvents.includes(e)
+              ? ""
+              : "checked"
+          }
+        >
+
+        <span>${e}</span>
+
+        ${
+          initialEvents.includes(e)
+
+            ? ""
+
+            : `
+              <button data-remove="${e}">
+                削除
+              </button>
+            `
+        }
+
+      </div>
+
+    `).join("");
+
+
+  document
+    .querySelectorAll("[data-show]")
+    .forEach(x => {
+
+      x.onchange = () => {
+
+        const e =
+          x.dataset.show;
+
+
+        hiddenEvents =
+          x.checked
+
+            ? hiddenEvents.filter(
+                v => v !== e
+              )
+
+            : [
+                ...hiddenEvents,
+                e
+              ];
+
+
+        saveEventSettings();
+
+      };
+
+    });
+
+
+  document
+    .querySelectorAll("[data-remove]")
+    .forEach(x => {
+
+      x.onclick = () => {
+
+        customEvents =
+          customEvents.filter(
+            v => v !== x.dataset.remove
+          );
+
+
+        hiddenEvents =
+          hiddenEvents.filter(
+            v => v !== x.dataset.remove
+          );
+
+
+        saveEventSettings();
+
+        renderManage();
+
+      };
+
+    });
+
+}
+
+
+function saveEventSettings(){
+
+  localStorage.setItem(
+
+    "familyCalendarEventSettings",
+
+    JSON.stringify({
+      customEvents,
+      hiddenEvents
+    })
+
+  );
+
+
+  renderEditorOptions();
+
+}
+
+
+const saved =
+  JSON.parse(
+    localStorage.getItem(
+      "familyCalendarEventSettings"
+    ) || "{}"
+  );
+
+
+customEvents =
+  saved.customEvents || [];
+
+
+hiddenEvents =
+  saved.hiddenEvents || [];
+
+
+/*
+  Firebase接続
+*/
+
+async function connectFirebase(){
+
+  const raw =
+    $("firebaseConfig").value.trim();
+
+
+  const room =
+    $("roomInput").value.trim();
+
+
+  if(!room){
+
+    alert(
+      "家族コードを入力してください。"
+    );
+
+    return;
+
+  }
+
+
+  localStorage.setItem(
+    "familyCalendarRoom",
+    room
+  );
+
+
+  roomId = room;
+
+
+  if(!raw){
+
+    $("shareStatus").textContent =
+      "この端末ではローカル保存で使用中です。家族共有にはFirebase設定が必要です。";
+
+    return;
+
+  }
+
+
+  try{
+
+    const config =
+      JSON.parse(raw);
+
+
+    localStorage.setItem(
+      "familyCalendarFirebaseConfig",
+      raw
+    );
+
+
+    const [
+      { initializeApp },
+      {
+        getFirestore,
+        collection,
+        onSnapshot,
+        setDoc,
+        doc,
+        deleteDoc
+      }
+    ] =
+      await Promise.all([
+
+        import(
+          "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"
+        ),
+
+        import(
+          "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js"
+        )
+
+      ]);
+
+
+    const app =
+      initializeApp(
+        config,
+        "family-calendar-" + Date.now()
+      );
+
+
+    db =
+      getFirestore(app);
+
+
+    firestoreFns = {
+      collection,
+      onSnapshot,
+      setDoc,
+      doc,
+      deleteDoc
+    };
+
+
+    if(unsubscribe){
+
+      unsubscribe();
+
+    }
+
+
+    unsubscribe =
+      onSnapshot(
+
+        collection(
+          db,
+          "familyCalendars",
+          roomId,
+          "events"
+        ),
+
+        snap => {
+
+          data =
+            snap.docs.map(
+              d => d.data()
+            );
+
+
+          render();
+
+        }
+
+      );
+
+
+    $("shareStatus").textContent =
+      `「${roomId}」で家族共有に接続しました。`;
+
+
+    localStorage.setItem(
+      "familyCalendarRoom",
+      roomId
+    );
+
+
+    $("settingsOverlay")
+      .classList.remove("show");
+
+
+  }catch(e){
+
+    console.error(e);
+
+    alert(
+      "Firebase設定を確認してください。"
+    );
+
+  }
+
+}
+
+
+/*
+  各ボタン
+*/
+
+$("addBtn").onclick =
+  () => openEditor(
+    iso(new Date())
+  );
+
+
+$("dayCloseBtn").onclick =
+  closeDay;
+
+
+$("cancelBtn").onclick =
+  closeEditor;
+
+
+$("saveBtn").onclick =
+  saveCurrent;
+
+
+$("deleteBtn").onclick =
+  deleteCurrent;
+
+
+$("customEventBtn").onclick =
+  () => {
+
+    $("customWrap").style.display =
+      $("customWrap").style.display === "none"
+
+        ? "block"
+
+        : "none";
+
+
+    selectedEvent = null;
+
+
+    renderEditorOptions();
+
+
+    if(
+      $("customWrap").style.display ===
+      "block"
+    ){
+
+      $("customInput").focus();
+
+    }
+
+  };
+
+
+$("prevBtn").onclick =
+  () => {
+
+    if(view === "month"){
+
+      cursor.setMonth(
+        cursor.getMonth()-1
+      );
+
+    }else{
+
+      cursor.setDate(
+        cursor.getDate()-7
+      );
+
+    }
+
+
+    render();
+
+  };
+
+
+$("nextBtn").onclick =
+  () => {
+
+    if(view === "month"){
+
+      cursor.setMonth(
+        cursor.getMonth()+1
+      );
+
+    }else{
+
+      cursor.setDate(
+        cursor.getDate()+7
+      );
+
+    }
+
+
+    render();
+
+  };
+
+
+document
+  .querySelectorAll(".tabs button")
+  .forEach(b => {
+
+    b.onclick = () => {
+
+      view =
+        b.dataset.view;
+
+
+      render();
+
+    };
+
+  });
+
+
+/*
+  ︙メニュー
+*/
+
+$("menuBtn").onclick =
+  () => {
+
+    $("menu")
+      .classList.toggle("show");
+
+  };
+
+
+$("shareMenuBtn").onclick =
+  () => {
+
+    $("menu")
+      .classList.remove("show");
+
+
+    $("settingsOverlay")
+      .classList.add("show");
+
+
+    $("roomInput").value =
+      roomId;
+
+
+    $("firebaseConfig").value =
+      localStorage.getItem(
+        "familyCalendarFirebaseConfig"
+      ) || "";
+
+  };
+
+
+$("manageMenuBtn").onclick =
+  () => {
+
+    $("menu")
+      .classList.remove("show");
+
+    openManage();
+
+  };
+
+
+$("closeSettings").onclick =
+  () => {
+
+    $("settingsOverlay")
+      .classList.remove("show");
+
+  };
+
+
+$("connectBtn").onclick =
+  connectFirebase;
+
+
+$("toggleSettings").onclick =
+  () => {
+
+    $("settingsBody")
+      .classList.toggle("show");
+
+  };
+
+
+$("closeManage").onclick =
+  () => {
+
+    $("manageOverlay")
+      .classList.remove("show");
+
+  };
+
+
+$("addEventBtn").onclick =
+  () => {
+
+    const v =
+      $("newEventInput").value.trim();
+
+
+    if(
+      v &&
+      !customEvents.includes(v) &&
+      !initialEvents.includes(v)
+    ){
+
+      customEvents.push(v);
+
+      $("newEventInput").value = "";
+
+      saveEventSettings();
+
+      renderManage();
+
+    }
+
+  };
+
+
+/*
+  月間カレンダーの左右フリック
+*/
+
+let touchStartX = 0;
+let touchStartY = 0;
+
+
+$("calendarArea")
+  .addEventListener(
+    "touchstart",
+    event => {
+
+      const touch =
+        event.changedTouches[0];
+
+
+      touchStartX =
+        touch.clientX;
+
+
+      touchStartY =
+        touch.clientY;
+
+    },
+    {passive:true}
+  );
+
+
+$("calendarArea")
+  .addEventListener(
+    "touchend",
+    event => {
+
+      if(view !== "month"){
+        return;
+      }
+
+
+      const touch =
+        event.changedTouches[0];
+
+
+      const diffX =
+        touch.clientX -
+        touchStartX;
+
+
+      const diffY =
+        touch.clientY -
+        touchStartY;
+
+
+      /*
+        縦方向への操作より
+        横方向への移動が大きい場合だけ
+        月を変更
+      */
+
+      if(
+        Math.abs(diffX) < 60 ||
+        Math.abs(diffX) < Math.abs(diffY)
+      ){
+        return;
+      }
+
+
+      /*
+        左へフリック → 次月
+      */
+
+      if(diffX < 0){
+
+        cursor.setMonth(
+          cursor.getMonth()+1
+        );
+
+      }
+
+      /*
+        右へフリック → 前月
+      */
+
+      else{
+
+        cursor.setMonth(
+          cursor.getMonth()-1
+        );
+
+      }
+
+
+      render();
+
+    },
+    {passive:true}
+  );
+
+
+/*
+  初回表示
+*/
+
+render();
+
+
+/*
+  保存済みFirebase設定がある場合は
+  自動的に家族共有へ接続
+*/
+
+async function autoConnectFirebase(){
+
+  const savedConfig =
+    localStorage.getItem(
+      "familyCalendarFirebaseConfig"
+    );
+
+
+  const savedRoom =
+    localStorage.getItem(
+      "familyCalendarRoom"
+    );
+
+
+  if(!savedConfig || !savedRoom){
+    return;
+  }
+
+
+  $("firebaseConfig").value =
+    savedConfig;
+
+
+  $("roomInput").value =
+    savedRoom;
+
+
+  await connectFirebase();
+
+}
+
+
+/*
+  Service Worker
+*/
+
+if("serviceWorker" in navigator){
+
+  window.addEventListener(
+    "load",
+    () => {
+
+      navigator.serviceWorker
+        .register("./sw.js")
+        .catch(console.error);
+
+    }
+  );
+
+}
+
+
+/*
+  Firebase自動接続
+*/
+
+autoConnectFirebase();
+
+</script>
+
+</body>
+</html>

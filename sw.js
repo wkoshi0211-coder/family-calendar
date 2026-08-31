@@ -2,6 +2,7 @@ const CACHE = "wagaya-calendar-v3";
 
 const ASSETS = [
   "./",
+  "./index.html",
   "./manifest.webmanifest",
   "./icon-180.png",
   "./icon-192.png",
@@ -9,32 +10,77 @@ const ASSETS = [
 ];
 
 self.addEventListener("install", (event) => {
+
   event.waitUntil(
+
     caches
       .open(CACHE)
-      .then((cache) => cache.addAll(ASSETS))
-      .then(() => self.skipWaiting())
+
+      .then((cache) =>
+        cache.addAll(ASSETS)
+      )
+
+      .then(() =>
+        self.skipWaiting()
+      )
+
   );
+
 });
+
 
 self.addEventListener("activate", (event) => {
+
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((key) => key !== CACHE)
-          .map((key) => caches.delete(key))
+
+    caches
+      .keys()
+
+      .then((keys) =>
+
+        Promise.all(
+
+          keys
+
+            .filter(
+              (key) =>
+                key !== CACHE
+            )
+
+            .map(
+              (key) =>
+                caches.delete(key)
+            )
+
+        )
+
       )
-    ).then(() => self.clients.claim())
+
+      .then(() =>
+        self.clients.claim()
+      )
+
   );
+
 });
 
+
 self.addEventListener("fetch", (event) => {
+
   event.respondWith(
-    fetch(event.request)
+
+    caches
+      .match(event.request)
+
       .then((response) => {
-        return response;
+
+        return (
+          response
+          ||fetch(event.request)
+        );
+
       })
-      .catch(() => caches.match(event.request))
+
   );
+
 });

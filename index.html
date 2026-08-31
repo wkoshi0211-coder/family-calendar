@@ -30,40 +30,19 @@
 html,
 body{
   margin:0;
-  width:100%;
   min-height:100%;
+}
+
+body{
   background:var(--bg);
   color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
 }
 
-body{
-  overflow-x:hidden;
-}
-
 .app{
   max-width:900px;
   margin:auto;
-  padding:8px 8px 0;
-  height:100dvh;
-  min-height:0;
-  display:flex;
-  flex-direction:column;
-  overflow:hidden;
-}
-
-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  margin-bottom:8px;
-  flex-shrink:0;
-}
-
-h1{
-  font-size:22px;
-  margin:0;
+  padding:8px 10px 12px;
 }
 
 button{
@@ -86,17 +65,19 @@ button:active{
   border-color:#333;
 }
 
-.top-row{
+/* 月間・週間・メニュー */
+.top-controls{
   display:flex;
   gap:6px;
   align-items:center;
+  margin:0 0 8px;
 }
 
 .tabs{
   display:flex;
   gap:6px;
-  margin:8px 0;
-  flex-shrink:0;
+  flex:1;
+  margin:0;
 }
 
 .tabs button{
@@ -109,15 +90,58 @@ button:active{
   border-color:#333;
 }
 
+.menu-wrap{
+  position:relative;
+  flex:0 0 auto;
+}
+
+.menu-btn{
+  width:42px;
+  min-width:42px;
+  padding:0;
+  font-size:24px;
+  line-height:1;
+}
+
+.menu-popup{
+  position:absolute;
+  top:48px;
+  right:0;
+  z-index:200;
+  display:none;
+  min-width:140px;
+  background:#fff;
+  border:1px solid #d0d0d0;
+  border-radius:10px;
+  box-shadow:0 4px 14px rgba(0,0,0,.15);
+  overflow:hidden;
+}
+
+.menu-popup.show{
+  display:block;
+}
+
+.menu-popup button{
+  width:100%;
+  border:0;
+  border-radius:0;
+  text-align:left;
+  min-height:46px;
+  padding:10px 14px;
+}
+
+/* 月・週の移動 */
 .nav{
   display:flex;
   align-items:center;
   justify-content:space-between;
+  gap:8px;
   margin:8px 0 10px;
-  flex-shrink:0;
 }
 
 .nav .title{
+  flex:1;
+  text-align:center;
   font-weight:700;
   font-size:20px;
 }
@@ -135,10 +159,6 @@ button:active{
   grid-template-columns:repeat(7,minmax(0,1fr));
 }
 
-.weekdays{
-  flex-shrink:0;
-}
-
 .weekdays div{
   text-align:center;
   font-size:12px;
@@ -148,17 +168,11 @@ button:active{
 }
 
 .month-grid{
-  min-height:0;
-}
-
-#monthView{
-  flex:1;
-  min-height:0;
-  display:flex;
+  grid-auto-rows:minmax(92px,1fr);
 }
 
 #monthView .calendar{
-  flex:1;
+  height:calc(100dvh - 128px);
   min-height:0;
   display:flex;
   flex-direction:column;
@@ -166,7 +180,6 @@ button:active{
 
 #monthView .month-grid{
   flex:1;
-  min-height:0;
   grid-template-rows:repeat(6,minmax(0,1fr));
   grid-auto-rows:auto;
 }
@@ -176,7 +189,6 @@ button:active{
   border-bottom:1px solid #e6e6e6;
   padding:4px;
   min-width:0;
-  min-height:0;
   overflow:hidden;
   cursor:pointer;
   position:relative;
@@ -445,21 +457,12 @@ input[type="date"]{
 }
 
 @media(max-width:600px){
-
   .app{
-    padding:8px 8px 0;
+    padding:6px 8px 10px;
   }
 
-  header{
-    margin-bottom:6px;
-  }
-
-  .tabs{
-    margin:6px 0;
-  }
-
-  .nav{
-    margin:6px 0 8px;
+  .month-grid{
+    grid-auto-rows:auto;
   }
 
   .event{
@@ -468,7 +471,6 @@ input[type="date"]{
 
   .day{
     padding:3px;
-    padding-bottom:18px;
   }
 
   .date-num{
@@ -478,7 +480,6 @@ input[type="date"]{
   .sheet{
     padding-bottom:28px;
   }
-
 }
 </style>
 </head>
@@ -487,16 +488,19 @@ input[type="date"]{
 
 <div class="app">
 
-  <header>
-    <h1>わが家のカレンダー</h1>
-    <div class="top-row">
-      <button id="shareBtn">共有設定</button>
+  <div class="top-controls">
+    <div class="tabs">
+      <button class="active" data-view="month">月間</button>
+      <button data-view="week">週間</button>
     </div>
-  </header>
 
-  <div class="tabs">
-    <button class="active" data-view="month">月間</button>
-    <button data-view="week">週間</button>
+    <div class="menu-wrap">
+      <button class="menu-btn" id="menuBtn" aria-label="メニュー">︙</button>
+
+      <div class="menu-popup" id="menuPopup">
+        <button id="shareBtn">共有設定</button>
+      </div>
+    </div>
   </div>
 
   <div class="nav">
@@ -507,7 +511,6 @@ input[type="date"]{
 
   <div id="monthView">
     <div class="calendar">
-
       <div class="weekdays">
         <div>日</div>
         <div>月</div>
@@ -519,7 +522,6 @@ input[type="date"]{
       </div>
 
       <div class="month-grid" id="monthGrid"></div>
-
     </div>
   </div>
 
@@ -530,7 +532,6 @@ input[type="date"]{
 </div>
 
 <button class="fab" id="addBtn">＋</button>
-
 
 <div class="overlay" id="editorOverlay">
   <div class="sheet">
@@ -566,28 +567,24 @@ input[type="date"]{
   </div>
 </div>
 
-
 <div class="overlay" id="settingsOverlay">
   <div class="sheet">
 
     <h2>共有設定</h2>
 
     <p class="notice">
-      家族共有には Firebase の設定が必要です。
-      設定後、同じ「家族コード」を家族全員で入力すると同じ予定を共有できます。
+      家族共有には Firebase の設定が必要です。設定後、同じ「家族コード」を家族全員で入力すると同じ予定を共有できます。
     </p>
 
     <button id="toggleSettings">Firebase設定を入力する</button>
 
     <div class="settings" id="settingsBody">
-
       <div class="label">Firebase設定（JSON）</div>
 
       <textarea
         id="firebaseConfig"
         style="width:100%;height:170px;padding:10px;border:1px solid #ccc;border-radius:9px;font-family:monospace"
       ></textarea>
-
     </div>
 
     <div class="label">家族コード</div>
@@ -602,7 +599,6 @@ input[type="date"]{
 
   </div>
 </div>
-
 
 <div class="overlay" id="manageOverlay">
   <div class="sheet">
@@ -623,7 +619,6 @@ input[type="date"]{
   </div>
 </div>
 
-
 <div class="overlay" id="dayOverlay">
   <div class="sheet">
 
@@ -638,7 +633,6 @@ input[type="date"]{
 
   </div>
 </div>
-
 
 <script type="module">
 
@@ -683,72 +677,47 @@ const LSKEY="familyCalendarLocal";
 
 const $=id=>document.getElementById(id);
 
-
 function pad(n){
   return String(n).padStart(2,"0");
 }
 
-
 function iso(d){
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 }
-
 
 function parseISO(s){
   const [y,m,d]=s.split("-").map(Number);
   return new Date(y,m-1,d);
 }
 
-
 function memberHtml(ids){
-
   return ids.map(id=>{
-
     const m=members.find(x=>x.id===id);
-
     return m
       ? `<span class="tag ${m.cls}">${m.label}</span>`
       : "";
-
   }).join("");
-
 }
-
 
 function eventText(e){
-
   return `${memberHtml(e.members||[])}${e.time||""}${e.event||""}`;
-
 }
 
-
 function monthEventText(e){
-
   return `
     <div class="event-meta">
       ${memberHtml(e.members||[])}${e.time||""}
     </div>
-
-    <div class="event-name">
-      ${e.event||""}
-    </div>
+    <div class="event-name">${e.event||""}</div>
   `;
-
 }
-
 
 function openDay(date){
 
   const d=parseISO(date);
 
   const names=[
-    "日",
-    "月",
-    "火",
-    "水",
-    "木",
-    "金",
-    "土"
+    "日","月","火","水","木","金","土"
   ];
 
   $("dayTitle").textContent=
@@ -760,120 +729,77 @@ function openDay(date){
       (a.time||"99:99").localeCompare(b.time||"99:99")
     );
 
-  $("dayEventList").innerHTML=
-    es.length
+  $("dayEventList").innerHTML=es.length
+    ? es.map(e=>
+        `<button class="day-event-item" data-edit-id="${e.id}">
+          ${eventText(e)}
+        </button>`
+      ).join("")
+    : `<div class="empty" style="padding:16px 0">
+        予定はありません
+      </div>`;
 
-      ? es.map(e=>
-          `<button class="day-event-item" data-edit-id="${e.id}">
-            ${eventText(e)}
-          </button>`
-        ).join("")
+  document.querySelectorAll("[data-edit-id]").forEach(b=>{
+    b.onclick=()=>{
+      const e=data.find(x=>x.id===b.dataset.editId);
 
-      : `<div class="empty" style="padding:16px 0">
-          予定はありません
-        </div>`;
-
-  document
-    .querySelectorAll("[data-edit-id]")
-    .forEach(b=>{
-
-      b.onclick=()=>{
-
-        const e=data.find(
-          x=>x.id===b.dataset.editId
-        );
-
-        if(e){
-
-          closeDay();
-
-          openEditor(
-            e.date,
-            e.id
-          );
-
-        }
-
-      };
-
-    });
+      if(e){
+        closeDay();
+        openEditor(e.date,e.id);
+      }
+    };
+  });
 
   $("dayAddBtn").onclick=()=>{
-
     closeDay();
-
     openEditor(date);
-
   };
 
   $("dayOverlay").classList.add("show");
-
 }
-
 
 function closeDay(){
-
   $("dayOverlay").classList.remove("show");
-
 }
 
-
 function localLoad(){
-
   try{
-
     return JSON.parse(
       localStorage.getItem(LSKEY)||"[]"
     );
-
   }catch{
-
     return [];
-
   }
-
 }
 
-
 function localSave(data){
-
   localStorage.setItem(
     LSKEY,
     JSON.stringify(data)
   );
 
   render();
-
 }
-
 
 let data=localLoad();
 
-
 function allEventOptions(){
-
   return [...new Set([
     ...initialEvents,
     ...customEvents
-  ])].filter(
-    x=>!hiddenEvents.includes(x)
-  );
-
+  ])].filter(x=>!hiddenEvents.includes(x));
 }
-
 
 function render(){
 
   $("periodTitle").textContent=
     view==="month"
-
       ? `${cursor.getFullYear()}年 ${cursor.getMonth()+1}月`
-
       : weekTitle();
 
   $("monthView").style.display=
     view==="month"
-      ? "flex"
+      ? "block"
       : "none";
 
   $("weekView").style.display=
@@ -881,42 +807,32 @@ function render(){
       ? "block"
       : "none";
 
-  document
-    .querySelectorAll(".tabs button")
-    .forEach(b=>
-      b.classList.toggle(
-        "active",
-        b.dataset.view===view
-      )
+  document.querySelectorAll(".tabs button").forEach(b=>{
+    b.classList.toggle(
+      "active",
+      b.dataset.view===view
     );
+  });
 
   if(view==="month"){
-
     renderMonth();
-
   }else{
-
     renderWeek();
-
   }
-
 }
-
 
 function renderMonth(){
 
   const y=cursor.getFullYear();
-
   const m=cursor.getMonth();
 
   const first=new Date(y,m,1);
 
-  const start=
-    new Date(
-      y,
-      m,
-      1-first.getDay()
-    );
+  const start=new Date(
+    y,
+    m,
+    1-first.getDay()
+  );
 
   const grid=$("monthGrid");
 
@@ -924,64 +840,43 @@ function renderMonth(){
 
   const today=iso(new Date());
 
-
   for(let i=0;i<42;i++){
 
     const d=new Date(start);
 
-    d.setDate(
-      start.getDate()+i
-    );
+    d.setDate(start.getDate()+i);
 
     const key=iso(d);
 
     const dayEvents=data
       .filter(e=>e.date===key)
       .sort((a,b)=>
-        (a.time||"99:99")
-          .localeCompare(
-            b.time||"99:99"
-          )
+        (a.time||"99:99").localeCompare(
+          b.time||"99:99"
+        )
       );
 
     const el=document.createElement("div");
 
     el.className=
-      "day"
-      +(d.getMonth()!==m
-        ?" muted"
-        :"")
-      +(key===today
-        ?" today"
-        :"");
+      "day"+
+      (d.getMonth()!==m?" muted":"")+
+      (key===today?" today":"");
 
     el.innerHTML=`
-      <div class="date-num">
-        ${d.getDate()}
-      </div>
+      <div class="date-num">${d.getDate()}</div>
 
-      ${dayEvents
-        .slice(0,3)
-        .map(e=>
-          `<div
-            class="event month-only-event"
-            title="${e.event}"
-          >
-            <div class="event-name">
-              ${e.event||""}
-            </div>
-          </div>`
-        )
-        .join("")
-      }
+      ${dayEvents.slice(0,3).map(e=>`
+        <div class="event month-only-event" title="${e.event}">
+          <div class="event-name">
+            ${e.event||""}
+          </div>
+        </div>
+      `).join("")}
 
       ${
         dayEvents.length>=4
-
-          ? `<div class="more-events">
-              他
-            </div>`
-
+          ? `<div class="more-events">他</div>`
           : ""
       }
     `;
@@ -989,11 +884,8 @@ function renderMonth(){
     el.onclick=()=>openDay(key);
 
     grid.appendChild(el);
-
   }
-
 }
-
 
 function weekStart(d){
 
@@ -1006,9 +898,7 @@ function weekStart(d){
   );
 
   return x;
-
 }
-
 
 function weekTitle(){
 
@@ -1016,18 +906,10 @@ function weekTitle(){
 
   const e=new Date(s);
 
-  e.setDate(
-    s.getDate()+6
-  );
+  e.setDate(s.getDate()+6);
 
-  return `
-    ${s.getMonth()+1}/${s.getDate()}
-    〜
-    ${e.getMonth()+1}/${e.getDate()}
-  `;
-
+  return `${s.getMonth()+1}/${s.getDate()}〜${e.getMonth()+1}/${e.getDate()}`;
 }
-
 
 function renderWeek(){
 
@@ -1038,33 +920,23 @@ function renderWeek(){
   list.innerHTML="";
 
   const names=[
-    "日",
-    "月",
-    "火",
-    "水",
-    "木",
-    "金",
-    "土"
+    "日","月","火","水","木","金","土"
   ];
-
 
   for(let i=0;i<7;i++){
 
     const d=new Date(s);
 
-    d.setDate(
-      s.getDate()+i
-    );
+    d.setDate(s.getDate()+i);
 
     const key=iso(d);
 
     const es=data
       .filter(e=>e.date===key)
       .sort((a,b)=>
-        (a.time||"99:99")
-          .localeCompare(
-            b.time||"99:99"
-          )
+        (a.time||"99:99").localeCompare(
+          b.time||"99:99"
+        )
       );
 
     const el=document.createElement("div");
@@ -1072,45 +944,32 @@ function renderWeek(){
     el.className="week-day";
 
     el.innerHTML=`
-
       <div class="week-head">
-
-        ${d.getMonth()+1}/${d.getDate()}
-        （${names[i]}）
-
+        ${d.getMonth()+1}/${d.getDate()}（${names[i]}）
       </div>
 
       ${
         es.length
-
-          ? es.map(e=>
-              `<div class="event">
+          ? es.map(e=>`
+              <div class="event">
                 ${eventText(e)}
-              </div>`
-            ).join("")
-
-          : `<div class="empty">
-              予定なし
-            </div>`
+              </div>
+            `).join("")
+          : `<div class="empty">予定なし</div>`
       }
-
     `;
 
     el.onclick=()=>openDay(key);
 
     list.appendChild(el);
-
   }
-
 }
-
 
 function openEditor(date,id=null){
 
   editingId=id;
 
   selectedMembers=[];
-
   selectedEvent=null;
 
   $("editorOverlay").classList.add("show");
@@ -1125,95 +984,73 @@ function openEditor(date,id=null){
       ? "block"
       : "none";
 
-
-  const old=
-    id
-      ? data.find(e=>e.id===id)
-      : null;
-
+  const old=id
+    ? data.find(e=>e.id===id)
+    : null;
 
   $("dateInput").value=
-    old?.date
-    ||date
-    ||iso(new Date());
+    old?.date||date||iso(new Date());
 
   $("timeInput").value=
-    old?.time
-    ||"";
+    old?.time||"";
 
   $("customInput").value="";
 
   $("customWrap").style.display="none";
-
 
   selectedMembers=
     old
       ? [...(old.members||[])]
       : [];
 
-
   selectedEvent=
-    old&&allEventOptions()
-      .includes(old.event)
+    old && allEventOptions().includes(old.event)
+      ? old.event
+      : null;
 
-        ? old.event
-
-        : null;
-
-
-  if(old&&!selectedEvent){
+  if(old && !selectedEvent){
 
     $("customWrap").style.display="block";
 
     $("customInput").value=old.event;
-
   }
 
-
   renderEditorOptions();
-
 }
-
 
 function renderEditorOptions(){
 
   $("memberGrid").innerHTML=
-
-    members.map(m=>
-      `<button
-        class="member-btn member-${m.cls}
-        ${selectedMembers.includes(m.id)
-          ?"selected"
-          :""
+    members.map(m=>`
+      <button
+        class="member-btn member-${m.cls} ${
+          selectedMembers.includes(m.id)
+            ? "selected"
+            : ""
         }"
         data-member="${m.id}"
       >
         ${m.label}
-      </button>`
-    ).join("");
-
+      </button>
+    `).join("");
 
   $("eventGrid").innerHTML=
-
-    allEventOptions()
-      .map(e=>
-        `<button
-          class="event-btn
-          ${selectedEvent===e
-            ?"selected"
-            :""
-          }"
-          data-event="${e}"
-        >
-          ${e}
-        </button>`
-      )
-      .join("")
-
-    +`<button id="manageEventsBtn">
-        予定を管理
-      </button>`;
-
+    allEventOptions().map(e=>`
+      <button
+        class="event-btn ${
+          selectedEvent===e
+            ? "selected"
+            : ""
+        }"
+        data-event="${e}"
+      >
+        ${e}
+      </button>
+    `).join("")
+    +
+    `<button id="manageEventsBtn">
+      予定を管理
+    </button>`;
 
   document
     .querySelectorAll("[data-member]")
@@ -1224,24 +1061,13 @@ function renderEditorOptions(){
         const id=b.dataset.member;
 
         selectedMembers=
-
           selectedMembers.includes(id)
-
-            ? selectedMembers.filter(
-                x=>x!==id
-              )
-
-            : [
-                ...selectedMembers,
-                id
-              ];
+            ? selectedMembers.filter(x=>x!==id)
+            : [...selectedMembers,id];
 
         renderEditorOptions();
-
       };
-
     });
-
 
   document
     .querySelectorAll("[data-event]")
@@ -1254,74 +1080,39 @@ function renderEditorOptions(){
         $("customWrap").style.display="none";
 
         renderEditorOptions();
-
       };
-
     });
 
-
   $("manageEventsBtn").onclick=openManage;
-
 }
-
 
 async function saveCurrent(){
 
   const event=
-
-    selectedEvent
-
-    ||$("customInput")
-        .value
-        .trim();
-
+    selectedEvent||
+    $("customInput").value.trim();
 
   if(!event){
-
-    alert(
-      "予定を選ぶか入力してください。"
-    );
-
+    alert("予定を選ぶか入力してください。");
     return;
-
   }
-
 
   const obj={
-
-    id:
-      editingId
-      ||crypto.randomUUID(),
-
-    date:
-      $("dateInput").value,
-
-    members:
-      selectedMembers,
-
-    time:
-      $("timeInput").value,
-
+    id:editingId||crypto.randomUUID(),
+    date:$("dateInput").value,
+    members:selectedMembers,
+    time:$("timeInput").value,
     event
-
   };
 
-
   if(!obj.date){
-
-    alert(
-      "日付を入力してください。"
-    );
-
+    alert("日付を入力してください。");
     return;
-
   }
-
 
   if(db){
 
     await firestoreFns.setDoc(
-
       firestoreFns.doc(
         db,
         "familyCalendars",
@@ -1329,9 +1120,7 @@ async function saveCurrent(){
         "events",
         obj.id
       ),
-
       obj
-
     );
 
   }else{
@@ -1341,41 +1130,30 @@ async function saveCurrent(){
     );
 
     if(i>=0){
-
       data[i]=obj;
-
     }else{
-
       data.push(obj);
-
     }
 
     localSave(data);
-
   }
 
-
   closeEditor();
-
 }
-
 
 async function deleteCurrent(){
 
-  if(!editingId)return;
+  if(!editingId){
+    return;
+  }
 
-
-  if(
-    !confirm(
-      "この予定を削除しますか？"
-    )
-  )return;
-
+  if(!confirm("この予定を削除しますか？")){
+    return;
+  }
 
   if(db){
 
     await firestoreFns.deleteDoc(
-
       firestoreFns.doc(
         db,
         "familyCalendars",
@@ -1383,7 +1161,6 @@ async function deleteCurrent(){
         "events",
         editingId
       )
-
     );
 
   }else{
@@ -1393,36 +1170,26 @@ async function deleteCurrent(){
     );
 
     localSave(data);
-
   }
 
-
   closeEditor();
-
 }
-
 
 function closeEditor(){
 
   $("editorOverlay")
-    .classList
-    .remove("show");
+    .classList.remove("show");
 
   editingId=null;
-
 }
-
 
 function openManage(){
 
   $("manageOverlay")
-    .classList
-    .add("show");
+    .classList.add("show");
 
   renderManage();
-
 }
-
 
 function renderManage(){
 
@@ -1433,19 +1200,17 @@ function renderManage(){
     ])
   ];
 
-
   $("manageList").innerHTML=
-
-    all.map(e=>
-
-      `<div class="manage-item">
+    all.map(e=>`
+      <div class="manage-item">
 
         <input
           type="checkbox"
           data-show="${e}"
-          ${hiddenEvents.includes(e)
-            ?""
-            :"checked"
+          ${
+            hiddenEvents.includes(e)
+              ? ""
+              : "checked"
           }
         >
 
@@ -1453,18 +1218,14 @@ function renderManage(){
 
         ${
           initialEvents.includes(e)
-
             ? ""
-
             : `<button data-remove="${e}">
                 削除
               </button>`
         }
 
-      </div>`
-
-    ).join("");
-
+      </div>
+    `).join("");
 
   document
     .querySelectorAll("[data-show]")
@@ -1475,24 +1236,13 @@ function renderManage(){
         const e=x.dataset.show;
 
         hiddenEvents=
-
           x.checked
-
-            ? hiddenEvents.filter(
-                v=>v!==e
-              )
-
-            : [
-                ...hiddenEvents,
-                e
-              ];
+            ? hiddenEvents.filter(v=>v!==e)
+            : [...hiddenEvents,e];
 
         saveEventSettings();
-
       };
-
     });
-
 
   document
     .querySelectorAll("[data-remove]")
@@ -1513,51 +1263,34 @@ function renderManage(){
         saveEventSettings();
 
         renderManage();
-
       };
-
     });
-
 }
-
 
 function saveEventSettings(){
 
   localStorage.setItem(
-
     "familyCalendarEventSettings",
-
     JSON.stringify({
       customEvents,
       hiddenEvents
     })
-
   );
 
   renderEditorOptions();
-
 }
 
-
 const saved=JSON.parse(
-
   localStorage.getItem(
     "familyCalendarEventSettings"
-  )
-
-  ||"{}"
-
+  )||"{}"
 );
 
-
 customEvents=
-  saved.customEvents
-  ||[];
+  saved.customEvents||[];
 
 hiddenEvents=
-  saved.hiddenEvents
-  ||[];
-
+  saved.hiddenEvents||[];
 
 async function connectFirebase(){
 
@@ -1571,17 +1304,10 @@ async function connectFirebase(){
       .value
       .trim();
 
-
   if(!room){
-
-    alert(
-      "家族コードを入力してください。"
-    );
-
+    alert("家族コードを入力してください。");
     return;
-
   }
-
 
   localStorage.setItem(
     "familyCalendarRoom",
@@ -1590,33 +1316,25 @@ async function connectFirebase(){
 
   roomId=room;
 
-
   if(!raw){
 
     $("shareStatus").textContent=
       "この端末ではローカル保存で使用中です。家族共有にはFirebase設定が必要です。";
 
     return;
-
   }
-
 
   try{
 
-    const config=
-      JSON.parse(raw);
-
+    const config=JSON.parse(raw);
 
     localStorage.setItem(
       "familyCalendarFirebaseConfig",
       raw
     );
 
-
     const [
-
-      {initializeApp},
-
+      { initializeApp },
       {
         getFirestore,
         collection,
@@ -1625,32 +1343,22 @@ async function connectFirebase(){
         doc,
         deleteDoc
       }
-
     ]=
-
     await Promise.all([
-
       import(
         "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"
       ),
-
       import(
         "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js"
       )
-
     ]);
 
-
-    const app=
-
-      initializeApp(
-        config,
-        "family-calendar-"+Date.now()
-      );
-
+    const app=initializeApp(
+      config,
+      "family-calendar-"+Date.now()
+    );
 
     db=getFirestore(app);
-
 
     firestoreFns={
       collection,
@@ -1660,52 +1368,37 @@ async function connectFirebase(){
       deleteDoc
     };
 
-
     if(unsubscribe){
-
       unsubscribe();
-
     }
 
+    unsubscribe=onSnapshot(
+      collection(
+        db,
+        "familyCalendars",
+        roomId,
+        "events"
+      ),
+      snap=>{
 
-    unsubscribe=
+        data=snap.docs.map(
+          d=>d.data()
+        );
 
-      onSnapshot(
-
-        collection(
-          db,
-          "familyCalendars",
-          roomId,
-          "events"
-        ),
-
-        snap=>{
-
-          data=snap.docs.map(
-            d=>d.data()
-          );
-
-          render();
-
-        }
-
-      );
-
+        render();
+      }
+    );
 
     $("shareStatus").textContent=
       `「${roomId}」で家族共有に接続しました。`;
-
 
     localStorage.setItem(
       "familyCalendarRoom",
       roomId
     );
 
-
     $("settingsOverlay")
-      .classList
-      .remove("show");
-
+      .classList.remove("show");
 
   }catch(e){
 
@@ -1714,105 +1407,160 @@ async function connectFirebase(){
     alert(
       "Firebase設定を確認してください。"
     );
-
   }
-
 }
 
+async function autoConnectFirebase(){
+
+  const raw=
+    localStorage.getItem(
+      "familyCalendarFirebaseConfig"
+    );
+
+  const room=
+    localStorage.getItem(
+      "familyCalendarRoom"
+    );
+
+  if(!raw || !room){
+    return;
+  }
+
+  try{
+
+    const config=JSON.parse(raw);
+
+    roomId=room;
+
+    const [
+      { initializeApp },
+      {
+        getFirestore,
+        collection,
+        onSnapshot,
+        setDoc,
+        doc,
+        deleteDoc
+      }
+    ]=
+    await Promise.all([
+      import(
+        "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"
+      ),
+      import(
+        "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js"
+      )
+    ]);
+
+    const app=initializeApp(
+      config,
+      "family-calendar-auto-"+Date.now()
+    );
+
+    db=getFirestore(app);
+
+    firestoreFns={
+      collection,
+      onSnapshot,
+      setDoc,
+      doc,
+      deleteDoc
+    };
+
+    if(unsubscribe){
+      unsubscribe();
+    }
+
+    unsubscribe=onSnapshot(
+      collection(
+        db,
+        "familyCalendars",
+        roomId,
+        "events"
+      ),
+      snap=>{
+
+        data=snap.docs.map(
+          d=>d.data()
+        );
+
+        render();
+      }
+    );
+
+  }catch(e){
+
+    console.error(e);
+  }
+}
+
+/* 予定追加 */
 
 $("addBtn").onclick=()=>{
-
-  openEditor(
-    iso(new Date())
-  );
-
+  openEditor(iso(new Date()));
 };
 
+$("dayCloseBtn").onclick=closeDay;
 
-$("dayCloseBtn").onclick=
-  closeDay;
+$("cancelBtn").onclick=closeEditor;
 
+$("saveBtn").onclick=saveCurrent;
 
-$("cancelBtn").onclick=
-  closeEditor;
+$("deleteBtn").onclick=deleteCurrent;
 
-
-$("saveBtn").onclick=
-  saveCurrent;
-
-
-$("deleteBtn").onclick=
-  deleteCurrent;
-
+/* その他を入力 */
 
 $("customEventBtn").onclick=()=>{
 
   $("customWrap").style.display=
-
     $("customWrap").style.display==="none"
-
       ? "block"
-
       : "none";
-
 
   selectedEvent=null;
 
   renderEditorOptions();
 
-
   if(
     $("customWrap").style.display==="block"
   ){
-
     $("customInput").focus();
-
   }
-
 };
 
+/* 前後移動 */
 
 $("prevBtn").onclick=()=>{
 
   if(view==="month"){
-
     cursor.setMonth(
       cursor.getMonth()-1
     );
-
   }else{
-
     cursor.setDate(
       cursor.getDate()-7
     );
-
   }
 
   render();
-
 };
-
 
 $("nextBtn").onclick=()=>{
 
   if(view==="month"){
-
     cursor.setMonth(
       cursor.getMonth()+1
     );
-
   }else{
-
     cursor.setDate(
       cursor.getDate()+7
     );
-
   }
 
   render();
-
 };
 
+/* 月間・週間 */
 
 document
   .querySelectorAll(".tabs button")
@@ -1823,62 +1571,70 @@ document
       view=b.dataset.view;
 
       render();
-
     };
-
   });
 
+/* ︙ メニュー */
+
+$("menuBtn").onclick=(event)=>{
+
+  event.stopPropagation();
+
+  $("menuPopup")
+    .classList.toggle("show");
+};
 
 $("shareBtn").onclick=()=>{
 
-  $("settingsOverlay")
-    .classList
-    .add("show");
+  $("menuPopup")
+    .classList.remove("show");
 
-  $("roomInput").value=
-    roomId;
+  $("settingsOverlay")
+    .classList.add("show");
+
+  $("roomInput").value=roomId;
 
   $("firebaseConfig").value=
-
     localStorage.getItem(
       "familyCalendarFirebaseConfig"
-    )
-
-    ||"";
-
+    )||"";
 };
 
+document.addEventListener("click",(event)=>{
+
+  const menu=$("menuPopup");
+
+  const button=$("menuBtn");
+
+  if(
+    menu.classList.contains("show") &&
+    !menu.contains(event.target) &&
+    !button.contains(event.target)
+  ){
+    menu.classList.remove("show");
+  }
+});
+
+/* 共有設定 */
 
 $("closeSettings").onclick=()=>{
-
   $("settingsOverlay")
-    .classList
-    .remove("show");
-
+    .classList.remove("show");
 };
 
-
-$("connectBtn").onclick=
-  connectFirebase;
-
+$("connectBtn").onclick=connectFirebase;
 
 $("toggleSettings").onclick=()=>{
-
   $("settingsBody")
-    .classList
-    .toggle("show");
-
+    .classList.toggle("show");
 };
 
+/* 予定管理 */
 
 $("closeManage").onclick=()=>{
-
   $("manageOverlay")
-    .classList
-    .remove("show");
-
+    .classList.remove("show");
 };
-
 
 $("addEventBtn").onclick=()=>{
 
@@ -1887,15 +1643,10 @@ $("addEventBtn").onclick=()=>{
       .value
       .trim();
 
-
   if(
-
-    v
-
-    &&!customEvents.includes(v)
-
-    &&!initialEvents.includes(v)
-
+    v &&
+    !customEvents.includes(v) &&
+    !initialEvents.includes(v)
   ){
 
     customEvents.push(v);
@@ -1905,52 +1656,21 @@ $("addEventBtn").onclick=()=>{
     saveEventSettings();
 
     renderManage();
-
   }
-
 };
-
 
 render();
 
-
-const savedRoom=
-  localStorage.getItem(
-    "familyCalendarRoom"
-  );
-
-const savedFirebaseConfig=
-  localStorage.getItem(
-    "familyCalendarFirebaseConfig"
-  );
-
-
-if(
-  savedRoom
-  &&savedFirebaseConfig
-){
-
-  $("roomInput").value=
-    savedRoom;
-
-  $("firebaseConfig").value=
-    savedFirebaseConfig;
-
-  connectFirebase();
-
-}
-
+autoConnectFirebase();
 
 if("serviceWorker" in navigator){
 
   window.addEventListener(
     "load",
-    ()=>navigator
-      .serviceWorker
+    ()=>navigator.serviceWorker
       .register("./sw.js")
       .catch(console.error)
   );
-
 }
 
 </script>

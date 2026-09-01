@@ -40,12 +40,15 @@ body{
   padding:12px 10px 28px;
 }
 
-header{
+.top-controls{
   display:flex;
   align-items:center;
-  justify-content:flex-end;
   gap:8px;
   margin-bottom:10px;
+}
+
+.top-controls .tabs{
+  flex:1;
 }
 
 button{
@@ -495,18 +498,18 @@ input[type="date"]{
 
 <div class="app">
 
-  <header>
+  <div class="top-controls">
+    <div class="tabs">
+      <button class="active" data-view="month">月間</button>
+      <button data-view="week">週間</button>
+    </div>
+
     <div class="menu-wrap">
       <button id="menuBtn" class="menu-btn" aria-label="メニュー" aria-expanded="false">︙</button>
       <div id="menuPopup" class="menu-popup">
         <button id="shareBtn">共有設定</button>
       </div>
     </div>
-  </header>
-
-  <div class="tabs">
-    <button class="active" data-view="month">月間</button>
-    <button data-view="week">週間</button>
   </div>
 
   <div class="nav">
@@ -693,6 +696,7 @@ const members=[
 let events=[];
 let customEvents=[];
 let hiddenEvents=[];
+let removedEvents=[];
 let view="month";
 let cursor=new Date();
 let editingId=null;
@@ -908,15 +912,24 @@ function localSave(data){
 let data=localLoad();
 
 
-function allEventOptions(){
+function allManagedEvents(){
 
   return [...new Set([
-    ...initialEvents,
+    ...initialEvents.filter(
+      x=>!removedEvents.includes(x)
+    ),
     ...customEvents
-  ])]
-  .filter(
-    x=>!hiddenEvents.includes(x)
-  );
+  ])];
+
+}
+
+
+function allEventOptions(){
+
+  return allManagedEvents()
+    .filter(
+      x=>!hiddenEvents.includes(x)
+    );
 
 }
 
@@ -1611,12 +1624,7 @@ function openManage(){
 
 function renderManage(){
 
-  const all=[
-    ...new Set([
-      ...initialEvents,
-      ...customEvents
-    ])
-  ];
+  const all=allManagedEvents();
 
 
   $("manageList").innerHTML=
@@ -1636,17 +1644,9 @@ function renderManage(){
 
         <span>${e}</span>
 
-        ${
-          initialEvents.includes(e)
-
-            ? ""
-
-            : `
-              <button data-remove="${e}">
-                削除
-              </button>
-            `
-        }
+        <button data-remove="${e}">
+          削除
+        </button>
 
       </div>
 
@@ -1684,15 +1684,25 @@ function renderManage(){
     .forEach(x=>
       x.onclick=()=>{
 
+        const eventName=x.dataset.remove;
+
         customEvents=
           customEvents.filter(
-            v=>v!==x.dataset.remove
+            v=>v!==eventName
           );
+
+
+        if(
+          initialEvents.includes(eventName)
+          &&!removedEvents.includes(eventName)
+        ){
+          removedEvents.push(eventName);
+        }
 
 
         hiddenEvents=
           hiddenEvents.filter(
-            v=>v!==x.dataset.remove
+            v=>v!==eventName
           );
 
 
@@ -1712,7 +1722,8 @@ function saveEventSettings(){
     "familyCalendarEventSettings",
     JSON.stringify({
       customEvents,
-      hiddenEvents
+      hiddenEvents,
+      removedEvents
     })
   );
 
@@ -1732,6 +1743,9 @@ customEvents=
 
 hiddenEvents=
   saved.hiddenEvents||[];
+
+removedEvents=
+  saved.removedEvents||[];
 
 
 async function connectFirebase(){
@@ -2146,8 +2160,7 @@ $("addEventBtn").onclick=()=>{
 
   if(
     v
-    &&!customEvents.includes(v)
-    &&!initialEvents.includes(v)
+    &&!allManagedEvents().includes(v)
   ){
 
     customEvents.push(v);

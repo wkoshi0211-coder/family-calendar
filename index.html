@@ -2223,6 +2223,32 @@ $("holidayUpdateBtn").onclick=async()=>{
       }
     });
 
+    /*
+      Nager.Date に未収録の日本の「休日」も祝日法のルールから補完する。
+      前日と翌日が祝日の平日は「国民の休日」とする。
+    */
+    const holidayDates=Object.keys(items);
+    const yearsToCheck=[...new Set(holidayDates.map(d=>Number(d.slice(0,4))))];
+
+    yearsToCheck.forEach(year=>{
+      const start=new Date(year,0,2);
+      const end=new Date(year,11,30);
+
+      for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
+        const key=iso(d);
+        if(items[key]) continue;
+
+        const prev=new Date(d);
+        prev.setDate(d.getDate()-1);
+        const next=new Date(d);
+        next.setDate(d.getDate()+1);
+
+        if(items[iso(prev)]&&items[iso(next)]){
+          items[key]="休日";
+        }
+      }
+    });
+
     if(Object.keys(items).length===0){
       throw new Error("祝日データの形式を確認できませんでした。");
     }

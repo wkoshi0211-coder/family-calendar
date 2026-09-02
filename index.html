@@ -2375,6 +2375,20 @@ $("addEventBtn").onclick=()=>{
 
 render();
 
+/*
+  アプリを開き直したときも、保存済みのFirebase設定と家族コードがある場合は
+  自動的に接続し、Firestoreの予定を読み込む。
+*/
+const savedRoom=localStorage.getItem("familyCalendarRoom")||"";
+const savedFirebaseConfig=localStorage.getItem("familyCalendarFirebaseConfig")||"";
+
+$("roomInput").value=savedRoom;
+$("firebaseConfig").value=savedFirebaseConfig;
+
+if(savedRoom&&savedFirebaseConfig){
+  connectFirebase();
+}
+
 
 if("serviceWorker" in navigator){
 

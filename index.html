@@ -40,17 +40,15 @@ body{
   padding:12px 10px 28px;
 }
 
-header{
+.top-controls{
   display:flex;
   align-items:center;
-  justify-content:space-between;
   gap:8px;
   margin-bottom:10px;
 }
 
-h1{
-  font-size:22px;
-  margin:0;
+.top-controls .tabs{
+  flex:1;
 }
 
 button{
@@ -67,23 +65,6 @@ button:active{
   transform:scale(.98);
 }
 
-.primary{
-  background:#333;
-  color:#fff;
-  border-color:#333;
-}
-
-.tabs{
-  display:flex;
-  gap:6px;
-  margin:8px 0;
-  align-items:stretch;
-}
-
-.tabs > button{
-  flex:1;
-}
-
 .menu-wrap{
   position:relative;
 }
@@ -96,27 +77,51 @@ button:active{
   line-height:1;
 }
 
-.top-menu{
-  display:none;
+.menu-popup{
   position:absolute;
   top:calc(100% + 6px);
   right:0;
-  min-width:120px;
+  display:none;
+  min-width:132px;
+  padding:6px;
   background:#fff;
   border:1px solid #cfcfcf;
   border-radius:10px;
-  padding:4px;
-  z-index:20;
-  box-shadow:0 4px 14px rgba(0,0,0,.12);
+  box-shadow:0 4px 14px rgba(0,0,0,.14);
+  z-index:110;
 }
 
-.top-menu.show{
+.menu-popup.show{
   display:block;
 }
 
-.top-menu button{
+.menu-popup button{
   width:100%;
+  border:0;
+  border-radius:7px;
   text-align:left;
+}
+
+.primary{
+  background:#333;
+  color:#fff;
+  border-color:#333;
+}
+
+.top-row{
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+
+.tabs{
+  display:flex;
+  gap:6px;
+  margin:8px 0;
+}
+
+.tabs button{
+  flex:1;
 }
 
 .tabs .active{
@@ -158,6 +163,15 @@ button:active{
   border-bottom:1px solid var(--line);
 }
 
+/* 月間カレンダー：日曜日と土曜日の列を見分けやすくする */
+.weekdays div:nth-child(1){
+  background:#fff0f0;
+}
+
+.weekdays div:nth-child(7){
+  background:#eef6ff;
+}
+
 .month-grid{
   grid-auto-rows:minmax(92px,1fr);
 }
@@ -195,8 +209,26 @@ button:active{
   color:#aaa;
 }
 
+/* 月間カレンダー：日曜日と土曜日の列を見分けやすくする */
+.month-grid .day:nth-child(7n+1){
+  background:#fff0f0;
+}
+
+.month-grid .day:nth-child(7n){
+  background:#eef6ff;
+}
+
 .day.today{
   background:#fff9d9;
+}
+
+.day.sunday,
+.day.holiday{
+  background:#fff0f0;
+}
+
+.day.saturday{
+  background:#eef6ff;
 }
 
 .date-num{
@@ -287,6 +319,15 @@ button:active{
   padding:10px;
   min-height:72px;
   cursor:pointer;
+}
+
+.week-day.sunday,
+.week-day.holiday{
+  background:#fff0f0;
+}
+
+.week-day.saturday{
+  background:#eef6ff;
 }
 
 .week-head{
@@ -493,20 +534,17 @@ input[type="date"]{
 
 <div class="app">
 
-  <div class="tabs">
-    <button class="active" data-view="month">月間</button>
-    <button data-view="week">週間</button>
+  <div class="top-controls">
+    <div class="tabs">
+      <button class="active" data-view="month">月間</button>
+      <button data-view="week">週間</button>
+    </div>
 
     <div class="menu-wrap">
-      <button
-        class="menu-btn"
-        id="menuBtn"
-        aria-label="メニュー"
-        aria-expanded="false"
-      >︙</button>
-
-      <div class="top-menu" id="topMenu">
+      <button id="menuBtn" class="menu-btn" aria-label="メニュー" aria-expanded="false">︙</button>
+      <div id="menuPopup" class="menu-popup">
         <button id="shareBtn">共有設定</button>
+        <button id="holidayUpdateBtn">祝日を更新</button>
       </div>
     </div>
   </div>
@@ -577,25 +615,6 @@ input[type="date"]{
       <button id="cancelBtn">キャンセル</button>
       <button id="deleteBtn" style="display:none">削除</button>
       <button class="primary" id="saveBtn">保存</button>
-    </div>
-
-  </div>
-
-</div>
-
-
-<div class="overlay" id="weeklyDeleteOverlay">
-
-  <div class="sheet">
-
-    <h2>予定を削除</h2>
-
-    <p id="weeklyDeleteMessage">削除方法を選んでください。</p>
-
-    <div class="actions" style="flex-direction:column">
-      <button id="weeklyDeleteOneBtn">この日だけ削除</button>
-      <button id="weeklyDeleteFromBtn">この日以降すべて削除</button>
-      <button id="weeklyDeleteCancelBtn">キャンセル</button>
     </div>
 
   </div>
@@ -686,6 +705,26 @@ input[type="date"]{
 </div>
 
 
+<div class="overlay" id="weeklyDeleteOverlay">
+
+  <div class="sheet">
+
+    <h2>毎週の予定を削除</h2>
+
+    <p class="notice">
+      削除する方法を選んでください。
+    </p>
+
+    <div class="actions" style="display:flex;flex-direction:column;gap:10px">
+      <button id="deleteThisOnlyBtn">この日だけ削除</button>
+      <button id="deleteFromThisDateBtn" class="primary">この日以降の予定をすべて削除</button>
+      <button id="weeklyDeleteCancelBtn">キャンセル</button>
+    </div>
+
+  </div>
+
+</div>
+
 <script type="module">
 
 const initialEvents=[
@@ -714,6 +753,7 @@ const members=[
 let events=[];
 let customEvents=[];
 let hiddenEvents=[];
+let removedEvents=[];
 let view="month";
 let cursor=new Date();
 let editingId=null;
@@ -724,6 +764,15 @@ let db=null;
 let firestoreFns=null;
 let roomId=localStorage.getItem("familyCalendarRoom")||"";
 let unsubscribe=null;
+let holidays={};
+
+try{
+  holidays=JSON.parse(
+    localStorage.getItem("familyCalendarHolidays")||"{}"
+  );
+}catch{
+  holidays={};
+}
 
 const LSKEY="familyCalendarLocal";
 
@@ -745,6 +794,10 @@ function parseISO(s){
   return new Date(y,m-1,d);
 }
 
+
+function isJapaneseHoliday(d){
+  return !!holidays[iso(d)];
+}
 
 function memberHtml(ids){
   return ids.map(id=>{
@@ -794,7 +847,10 @@ function getEventsForDate(date){
 
       return e.weekday===d.getDay()
         && date>=e.date
-        && (!e.endDate || date<=e.endDate)
+        && (
+          !e.endDate
+          || date<=e.endDate
+        )
         && !exceptionIds.includes(e.id);
     })
     .map(e=>({
@@ -930,15 +986,24 @@ function localSave(data){
 let data=localLoad();
 
 
-function allEventOptions(){
+function allManagedEvents(){
 
   return [...new Set([
-    ...initialEvents,
+    ...initialEvents.filter(
+      x=>!removedEvents.includes(x)
+    ),
     ...customEvents
-  ])]
-  .filter(
-    x=>!hiddenEvents.includes(x)
-  );
+  ])];
+
+}
+
+
+function allEventOptions(){
+
+  return allManagedEvents()
+    .filter(
+      x=>!hiddenEvents.includes(x)
+    );
 
 }
 
@@ -1027,6 +1092,9 @@ function renderMonth(){
     el.className=
       "day"
       +(d.getMonth()!==m?" muted":"")
+      +(d.getDay()===0?" sunday":"")
+      +(d.getDay()===6?" saturday":"")
+      +(isJapaneseHoliday(d)?" holiday":"")
       +(key===today?" today":"");
 
 
@@ -1144,7 +1212,11 @@ function renderWeek(){
 
     const el=document.createElement("div");
 
-    el.className="week-day";
+    el.className=
+      "week-day"
+      +(d.getDay()===0?" sunday":"")
+      +(d.getDay()===6?" saturday":"")
+      +(isJapaneseHoliday(d)?" holiday":"");
 
 
     el.innerHTML=`
@@ -1261,6 +1333,8 @@ function openEditor(date,id=null){
 }
 
 
+let weeklyDeleteTarget=null;
+
 function openWeeklyOccurrenceEditor(date,weeklyId){
 
   editingId=null;
@@ -1271,39 +1345,26 @@ function openWeeklyOccurrenceEditor(date,weeklyId){
 
   if(!old)return;
 
-  $("editorOverlay")
-    .classList.add("show");
+  $("editorOverlay").classList.add("show");
 
-
-  $("editorTitle").textContent=
-    "毎週の予定";
-
+  $("editorTitle").textContent="毎週の予定";
 
   $("deleteBtn").style.display="block";
 
-
   $("dateInput").value=date;
-
-  $("timeInput").value=
-    old.time||"";
-
+  $("timeInput").value=old.time||"";
 
   $("repeatWeekly").checked=true;
   $("repeatWeekly").disabled=true;
-
 
   selectedMembers=[
     ...(old.members||[])
   ];
 
-
   selectedEvent=
-    allEventOptions()
-      .includes(old.event)
-
+    allEventOptions().includes(old.event)
       ? old.event
       : null;
-
 
   $("customInput").value=old.event;
 
@@ -1312,42 +1373,27 @@ function openWeeklyOccurrenceEditor(date,weeklyId){
       ? "none"
       : "block";
 
-
   renderEditorOptions();
 
-
   $("deleteBtn").onclick=()=>{
-    $("weeklyDeleteMessage").textContent=
-      `${date.replaceAll("-","/")}の「${old.event}」の削除方法を選んでください。`;
+
+    weeklyDeleteTarget={
+      date,
+      weeklyId
+    };
 
     $("weeklyDeleteOverlay").classList.add("show");
 
-    $("weeklyDeleteOneBtn").onclick=async()=>{
-      await deleteWeeklyOccurrence(date,weeklyId);
-      closeWeeklyDelete();
-      closeEditor();
-    };
-
-    $("weeklyDeleteFromBtn").onclick=async()=>{
-      await deleteWeeklyFromDate(date,weeklyId);
-      closeWeeklyDelete();
-      closeEditor();
-    };
-
-    $("weeklyDeleteCancelBtn").onclick=
-      closeWeeklyDelete;
   };
 
 }
 
 
-function closeWeeklyDelete(){
-  $("weeklyDeleteOverlay")
-    .classList.remove("show");
-}
+async function deleteWeeklyOccurrence(){
 
+  if(!weeklyDeleteTarget)return;
 
-async function deleteWeeklyOccurrence(date,weeklyId){
+  const {date,weeklyId}=weeklyDeleteTarget;
 
   const exception={
     id:crypto.randomUUID(),
@@ -1357,6 +1403,7 @@ async function deleteWeeklyOccurrence(date,weeklyId){
   };
 
   if(db){
+
     await firestoreFns.setDoc(
       firestoreFns.doc(
         db,
@@ -1367,23 +1414,48 @@ async function deleteWeeklyOccurrence(date,weeklyId){
       ),
       exception
     );
+
   }else{
+
     data.push(exception);
     localSave(data);
+
   }
+
+  $("weeklyDeleteOverlay").classList.remove("show");
+
+  weeklyDeleteTarget=null;
+
+  closeEditor();
 
 }
 
 
-async function deleteWeeklyFromDate(date,weeklyId){
+async function deleteWeeklyFromThisDate(){
 
-  const selected=parseISO(date);
-  selected.setDate(selected.getDate()-1);
+  if(!weeklyDeleteTarget)return;
 
-  const endDate=iso(selected);
+  const {date,weeklyId}=weeklyDeleteTarget;
+
+  const old=data.find(
+    e=>e.id===weeklyId
+  );
+
+  if(!old)return;
+
+  const endDate=parseISO(date);
+  endDate.setDate(
+    endDate.getDate()-1
+  );
+
+  const updated={
+    ...old,
+    endDate:iso(endDate)
+  };
 
   if(db){
-    await firestoreFns.updateDoc(
+
+    await firestoreFns.setDoc(
       firestoreFns.doc(
         db,
         "familyCalendars",
@@ -1391,19 +1463,29 @@ async function deleteWeeklyFromDate(date,weeklyId){
         "events",
         weeklyId
       ),
-      {endDate}
+      updated
     );
-  }else{
-    const item=data.find(e=>e.id===weeklyId);
 
-    if(item){
-      item.endDate=endDate;
+  }else{
+
+    const i=data.findIndex(
+      e=>e.id===weeklyId
+    );
+
+    if(i>=0){
+      data[i]=updated;
       localSave(data);
     }
+
   }
 
-}
+  $("weeklyDeleteOverlay").classList.remove("show");
 
+  weeklyDeleteTarget=null;
+
+  closeEditor();
+
+}
 
 function renderEditorOptions(){
 
@@ -1672,12 +1754,7 @@ function openManage(){
 
 function renderManage(){
 
-  const all=[
-    ...new Set([
-      ...initialEvents,
-      ...customEvents
-    ])
-  ];
+  const all=allManagedEvents();
 
 
   $("manageList").innerHTML=
@@ -1697,17 +1774,9 @@ function renderManage(){
 
         <span>${e}</span>
 
-        ${
-          initialEvents.includes(e)
-
-            ? ""
-
-            : `
-              <button data-remove="${e}">
-                削除
-              </button>
-            `
-        }
+        <button data-remove="${e}">
+          削除
+        </button>
 
       </div>
 
@@ -1745,15 +1814,25 @@ function renderManage(){
     .forEach(x=>
       x.onclick=()=>{
 
+        const eventName=x.dataset.remove;
+
         customEvents=
           customEvents.filter(
-            v=>v!==x.dataset.remove
+            v=>v!==eventName
           );
+
+
+        if(
+          initialEvents.includes(eventName)
+          &&!removedEvents.includes(eventName)
+        ){
+          removedEvents.push(eventName);
+        }
 
 
         hiddenEvents=
           hiddenEvents.filter(
-            v=>v!==x.dataset.remove
+            v=>v!==eventName
           );
 
 
@@ -1773,7 +1852,8 @@ function saveEventSettings(){
     "familyCalendarEventSettings",
     JSON.stringify({
       customEvents,
-      hiddenEvents
+      hiddenEvents,
+      removedEvents
     })
   );
 
@@ -1793,6 +1873,9 @@ customEvents=
 
 hiddenEvents=
   saved.hiddenEvents||[];
+
+removedEvents=
+  saved.removedEvents||[];
 
 
 async function connectFirebase(){
@@ -1858,7 +1941,7 @@ async function connectFirebase(){
         setDoc,
         doc,
         deleteDoc,
-        updateDoc
+        getDoc
       }
     ]=
     await Promise.all([
@@ -1888,8 +1971,7 @@ async function connectFirebase(){
       onSnapshot,
       setDoc,
       doc,
-      deleteDoc,
-      updateDoc
+      deleteDoc
     };
 
 
@@ -1910,9 +1992,17 @@ async function connectFirebase(){
       snap=>{
 
         data=
-          snap.docs.map(
-            d=>d.data()
-          );
+          snap.docs.map(d=>{
+            const saved=d.data();
+
+            return {
+              ...saved,
+              id:saved.id||d.id,
+              members:Array.isArray(saved.members)
+                ? saved.members
+                : []
+            };
+          });
 
         render();
 
@@ -1959,6 +2049,22 @@ $("addBtn").onclick=()=>{
 
 $("dayCloseBtn").onclick=
   closeDay;
+
+
+$("deleteThisOnlyBtn").onclick=
+  deleteWeeklyOccurrence;
+
+
+$("deleteFromThisDateBtn").onclick=
+  deleteWeeklyFromThisDate;
+
+
+$("weeklyDeleteCancelBtn").onclick=()=>{
+  $("weeklyDeleteOverlay")
+    .classList.remove("show");
+
+  weeklyDeleteTarget=null;
+};
 
 
 $("cancelBtn").onclick=
@@ -2122,49 +2228,157 @@ document
 $("menuBtn").onclick=(event)=>{
   event.stopPropagation();
 
-  const menu=$("topMenu");
-  const isOpen=menu.classList.toggle("show");
+  const popup=$("menuPopup");
+  const isOpen=popup.classList.toggle("show");
 
   $("menuBtn").setAttribute(
     "aria-expanded",
-    String(isOpen)
+    isOpen ? "true" : "false"
   );
 };
 
 
 $("shareBtn").onclick=()=>{
-  $("topMenu").classList.remove("show");
-  $("menuBtn").setAttribute(
-    "aria-expanded",
-    "false"
-  );
+  $("menuPopup").classList.remove("show");
+  $("menuBtn").setAttribute("aria-expanded","false");
 
   $("settingsOverlay")
     .classList.add("show");
 
+
   $("roomInput").value=
     roomId;
+
 
   $("firebaseConfig").value=
     localStorage.getItem(
       "familyCalendarFirebaseConfig"
     )||"";
+
 };
 
 
-document.addEventListener("click",event=>{
+document.addEventListener("click",(event)=>{
   if(
-    !$("topMenu").contains(event.target)
-    &&!$("menuBtn").contains(event.target)
+    !$("menuBtn").contains(event.target)
+    &&!$("menuPopup").contains(event.target)
   ){
-    $("topMenu").classList.remove("show");
-    $("menuBtn").setAttribute(
-      "aria-expanded",
-      "false"
-    );
+    $("menuPopup").classList.remove("show");
+    $("menuBtn").setAttribute("aria-expanded","false");
   }
 });
 
+
+
+
+$("holidayUpdateBtn").onclick=async()=>{
+  $("menuPopup").classList.remove("show");
+  $("menuBtn").setAttribute("aria-expanded","false");
+
+  if(!confirm("祝日データを取得して更新しますか？")) return;
+
+  const btn=$("holidayUpdateBtn");
+  const originalText=btn.textContent;
+
+  try{
+    btn.disabled=true;
+    btn.textContent="取得中…";
+
+    const currentYear=new Date().getFullYear();
+    const years=[];
+
+    for(let year=currentYear;year<=currentYear+5;year++){
+      years.push(year);
+    }
+
+    const responses=await Promise.all(
+      years.map(async year=>{
+        const response=await fetch(
+          `https://nagerholidays.com/api/v4/Holidays/JP/${year}`,
+          {cache:"no-store"}
+        );
+
+        if(!response.ok){
+          throw new Error(`祝日データを取得できませんでした。(${year})`);
+        }
+
+        return response.json();
+      })
+    );
+
+    const items={};
+
+    responses.flat().forEach(item=>{
+      if(item&&item.date){
+        items[item.date]=item.localName||item.name||"祝日";
+      }
+    });
+
+    const yearsToCheck=[...new Set(
+      Object.keys(items).map(d=>Number(d.slice(0,4)))
+    )];
+
+    yearsToCheck.forEach(year=>{
+      const start=new Date(year,0,2);
+      const end=new Date(year,11,30);
+
+      for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
+        const key=iso(d);
+        if(items[key]) continue;
+
+        const prev=new Date(d);
+        prev.setDate(d.getDate()-1);
+
+        const next=new Date(d);
+        next.setDate(d.getDate()+1);
+
+        if(items[iso(prev)]&&items[iso(next)]){
+          items[key]="休日";
+        }
+      }
+    });
+
+    if(Object.keys(items).length===0){
+      throw new Error("祝日データの形式を確認できませんでした。");
+    }
+
+    const mergedHolidays={...holidays,...items};
+
+    if(db&&firestoreFns&&roomId){
+      await firestoreFns.setDoc(
+        firestoreFns.doc(
+          db,
+          "familyCalendars",
+          roomId,
+          "holidays",
+          "data"
+        ),
+        {
+          items:mergedHolidays,
+          updatedAt:new Date().toISOString()
+        }
+      );
+    }
+
+    holidays=mergedHolidays;
+    localStorage.setItem(
+      "familyCalendarHolidays",
+      JSON.stringify(holidays)
+    );
+
+    render();
+
+    alert(`${Object.keys(items).length}件の祝日データを更新しました。`);
+  }catch(e){
+    console.error(e);
+    alert(
+      "祝日データを取得できませんでした。既存の予定やイベントは変更されていません。"
+    );
+  }finally{
+    btn.disabled=false;
+    btn.textContent=originalText;
+  }
+};
 
 $("closeSettings").onclick=()=>{
 
@@ -2204,8 +2418,7 @@ $("addEventBtn").onclick=()=>{
 
   if(
     v
-    &&!customEvents.includes(v)
-    &&!initialEvents.includes(v)
+    &&!allManagedEvents().includes(v)
   ){
 
     customEvents.push(v);
@@ -2222,6 +2435,28 @@ $("addEventBtn").onclick=()=>{
 
 
 render();
+
+
+/*
+  保存済みのFirebase設定と家族コードがある場合は、
+  アプリ起動時に自動で家族共有へ接続する。
+  これにより、Firestoreに保存済みの既存予定も
+  画面を開いた直後から読み込む。
+*/
+const savedFirebaseConfig=
+  localStorage.getItem(
+    "familyCalendarFirebaseConfig"
+  )||"";
+
+if(
+  roomId
+  &&savedFirebaseConfig
+){
+  $("roomInput").value=roomId;
+  $("firebaseConfig").value=savedFirebaseConfig;
+
+  connectFirebase();
+}
 
 
 if("serviceWorker" in navigator){
